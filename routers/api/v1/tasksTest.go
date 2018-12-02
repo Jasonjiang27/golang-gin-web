@@ -1,18 +1,21 @@
 package v1
 
 import (
-	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
-	"github.com/Unknwon/com"
 
-	"golang-gin-web/pkg/e"
+	"github.com/Unknwon/com"
+	"github.com/astaxie/beego/validation"
+	"github.com/gin-gonic/gin"
+
 	"golang-gin-web/models"
-	"golang-gin-web/pkg/util"
+	"golang-gin-web/pkg/e"
 	"golang-gin-web/pkg/setting"
+	"golang-gin-web/pkg/util"
 )
 
 //获取数据来源
-func GetDataSource(c *gin.Context){
+func GetDataSource(c *gin.Context) {
 
 }
 
@@ -27,7 +30,7 @@ func DownFile(c *gin.Context) {
 }
 
 //查看任务进度
-func TaskProcess(c *gin.Context){
+func TaskProcess(c *gin.Context) {
 
 }
 
@@ -42,20 +45,45 @@ func TaskCommonSubmit(c *gin.Context) {
 }
 
 //获取任务列表
-func GetTask(c *gin.Context) {
-	task_id := c.Query("taskId")
-
+func GetTasks(c *gin.Context) {
 	maps := make(map[string]interface{})
 	data := make(map[string]interface{})
+	valid := validation.Validation{}
 
-	if task_id > 0 {
-		maps[task_id] = task_id
+	var taskId int = -1
+	if arg := c.Query("task_id"); arg != "" {
+		taskId = com.StrTo(arg).MustInt()
+		maps["task_id"] = taskId
+
+		valid.Min(taskId, 1, "task_id").Message("任务id必须大于0")
 	}
-	if user_id > 0 {
-		maps[user_id] = user_id
+
+	var userId int = -1
+	if arg := c.Query("user_id"); arg != "" {
+		userId = com.StrTo(arg).MustInt()
+		maps["user_id"] = userId
+
+		valid.Min(userId, 1, "user_id").Message("用户id必须大于0")
 	}
-	maps[task_status] = task_status
-	
+
+	if !valid.HasErrors() {
+
+		data["list"] = models.GetTasks(util.GetPage(c), setting.PageSize, maps)
+		data["total"] = models.GetTasksTotal(maps)
+
+	} else {
+		for _, err := range valid.Errors {
+			log.Fatal(err.Key, err.Message)
+
+		}
+	}
+	code := e.SUCCESS
+	c.JSON(http.StatusOK, gin.H{
+		"code":     code,
+		"msg":      e.GetMsg(code),
+		"msg_test": "cool",
+		"data":     data,
+	})
 }
 
 //跑批任务删除

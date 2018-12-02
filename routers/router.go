@@ -35,9 +35,8 @@ func InitRouter() *gin.Engine {
 		apiv1.POST("/taskCommonSubmit", v1.TaskCommonSubmit)
 
 		//获取任务列表
-		apiv1.GET("/getTask/:limit/:userId/:type/:offset", v1.GetTask)
+		apiv1.GET("/getTasks/:limit/:userId/:type/:offset", v1.GetTasks)
 	}
-
 
 	return r
 }
