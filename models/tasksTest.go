@@ -45,6 +45,7 @@ func AddTask(data map[string]interface{}) error {
 		TaskId: data["task_id"].(int),
 		UserId: data["user_id"].(int),
 		Type: data["type"].(string),
+		TaskStatus: data["task_status"].(string),
 		TaskProjectName: data["task_project_name"].(string),
 		TaskColumnNumber: data["task_column_number"].(int),
 		StartTime: data["start_time"].(string),

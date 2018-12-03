@@ -46,6 +46,29 @@ func TaskSubmit(c *gin.Context) {
 
 //提交mongo任务
 func TaskCommonSubmit(c *gin.Context) {
+	taskId := com.StrTo(c.Query("task_id")).MustInt()
+	UserId := com.StrTo(c.Query("user_id")).MustInt()
+	Type := c.Query("type")
+	State := c.DefaultQuery("state", "fail")
+	TaskStatus := c.DefaultQuery("task_status", "提交中")
+	TaskProjectName := c.Query("task_project_name")
+	SubTaskNumbers := com.StrTo(c.Query("sub_task_numbers")).MustInt()
+
+	valid := validation.Validation{}
+	valid.Min(taskId, 1, "task_id").Message("任务id必须大于0")
+	valid.Min(UserId, 1, "user_id").Message("用户id必须大于0")
+	valid.Required(Type, "type").Message("数据类型不能为空")
+	valid.Range(TaskStatus, "提交中", "提交成功", "task_status").Message("任务执行状态只能是提交中或任务完成")
+	valid.Range(State, "成功", "失败", "state").Message("任务状态只能是成功或失败")
+	valid.Required(TaskProjectName, "task_project_name").Message("任务名称不能为空")
+	valid.Min(SubTaskNumbers, 1,"sub_task_numbers").Message("子任务数必须大于0")
+
+
+	code := e.INVALID_PARAMS
+
+	}
+
+
 	
 }
 
