@@ -1,5 +1,5 @@
 //用户表
-CREATE TABLE `user` (
+CREATE TABLE IF NOT EXISTS `tea_user` (
     `userId` int unsiged PRIMARY KEY AUTO_INCREMENT comment "用户id",
     `userName` VARCHAR(20) NOT NULL comment '用户名',
     `password` VARCHAR(100), comment '用户密码'
@@ -7,7 +7,7 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户表';
 
 //用户状态表
-CREATE TABLE userstatus (
+CREATE TABLE IF NOT EXISTS tea_userstatus (
     userId int PRIMARY KEY comment '用户id',
     `online` bool comment '是否在线',
     token VARCHAR(100) comment '用户是否登陆的凭证',
@@ -15,7 +15,7 @@ CREATE TABLE userstatus (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户状态表';
 
 //子任务表
-CREATE TABLE subTasks(
+CREATE TABLE IF NOT EXISTS tea_subTasks(
     taskId INT comment '当前任务id',
     taskUid varchar(20) PRIMARY KEY comment '子任务的唯一id',
     taskText text comment '任务的文本数据',
@@ -25,7 +25,7 @@ CREATE TABLE subTasks(
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='子任务表';
 
 //总任务表
-CREATE TABLE totaltasks (
+CREATE TABLE IF NOT EXISTS tea_task (
     taskID int PRIMARY KEY comment '任务id',
     userId int comment '用户id',
     taskStatus VARCHAR(100) comment '任务状态',
@@ -42,7 +42,7 @@ CREATE TABLE totaltasks (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='总任务表'
 
 //任务相关信息表
-CREATE TABLE taskInfo(
+CREATE TABLE IF NOT EXISTS tea_taskInfo(
     taskId INT PRIMARY KEY comment '任务id',
     taskUserId INT comment '当前任务所有者',
     taskUserPower INT comment '当前任务所有者权限',
@@ -51,7 +51,7 @@ CREATE TABLE taskInfo(
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='任务相关信息表';
 
 //任务结果表
-CREATE TABLE taskResult(
+CREATE TABLE IF NOT EXISTS tea_taskResult(
     taskUid VARCHAR(100) PRIMARY KEY,
     numberId int comment '序列号',
     result text comment '分词结果',

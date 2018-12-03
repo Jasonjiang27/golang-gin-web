@@ -28,3 +28,39 @@ func GetTasksTotal(maps interface{}) (count int) {
 
 	return
 }
+
+//判断任务是否存在
+func ExistTaskById(task_id int) bool {
+	var task Task
+	db.Select("task_id").Where("task_id = ?", task_id).First(&task)
+
+	if task.TaskId > 0 {
+		return true
+	}
+	return false
+}
+
+func AddTask(data map[string]interface{}) error {
+	task := Task{
+		TaskId: data["task_id"].(int),
+		UserId: data["user_id"].(int),
+		Type: data["type"].(string),
+		TaskProjectName: data["task_project_name"].(string),
+		TaskColumnNumber: data["task_column_number"].(int),
+		StartTime: data["start_time"].(string),
+		EndTime: data["end_time"].(string),
+		SubTaskNumbers: data["sub_task_numbers"].(int),
+	}
+	if err := db.Create(&task).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteTask(taskId int) error {
+	if err := db.Where("taskId = ?", taskId).Delete(Task{}).Error; err != nil {
+		return err
+	}
+	return nil
+}

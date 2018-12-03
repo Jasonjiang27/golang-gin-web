@@ -34,6 +34,11 @@ func TaskProcess(c *gin.Context) {
 
 }
 
+//新增任务
+func AddTask(c *gin.Context) {
+
+}
+
 //提交csv任务
 func TaskSubmit(c *gin.Context) {
 
@@ -41,6 +46,11 @@ func TaskSubmit(c *gin.Context) {
 
 //提交mongo任务
 func TaskCommonSubmit(c *gin.Context) {
+	
+}
+
+//执行跑批测试
+func TaskTest(){
 
 }
 
@@ -88,5 +98,26 @@ func GetTasks(c *gin.Context) {
 
 //跑批任务删除
 func DeleteTask(c *gin.Context) {
+	taskId := com.StrTo(c.Param("task_id")).MustInt()
 
+	valid := validation.Validation{}
+	valid.Min(taskId, 1, "task_id").Message("任务id必须0")
+
+	code := e.INVALID_PARAMS
+	if ! valid.HasErrors() {
+		if models.ExistTaskById(taskId) {
+			models.DeleteTask(taskId)
+			code = e.SUCCESS
+		} else {
+			for _, err := range valid.Errors {
+				log.Fatal(err.Key, err.Message)
+			}
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"code" : code,
+			"msg" : e.GetMsg(code),
+			"data" : make(map[string]string),
+
+		})
+	}
 }
