@@ -1,6 +1,7 @@
 package v1
 
 import (
+	//"time"
 	"log"
 	"net/http"
 
@@ -15,13 +16,21 @@ import (
 )
 
 //获取数据来源
-func GetDataSource(c *gin.Context) {
-
+func GetDataSource(c *gin.Context){
+	
+	//var data []string
+	//data = models.GetDataSource()
+	//return data
 }
 
 //获取品牌
 func GetBrands(c *gin.Context) {
-
+	
+	//name := c.Query("name")
+	//series := c.Query("series")
+	//var brands 
+	//data["brand"] = append(data["brand"], brands)
+	//return data
 }
 
 //跑批结果文件下载
@@ -34,41 +43,63 @@ func TaskProcess(c *gin.Context) {
 
 }
 
-//新增任务
-func AddTask(c *gin.Context) {
-
-}
 
 //提交csv任务
 func TaskSubmit(c *gin.Context) {
 
+	//上传csv文件
+	file, _ := c.FormFile("file")
+	log.Println(file.Filename)
+
+	taskType := c.Query("task_type")
+	fileName := c.Query("file_name")
+	projectName := c.Query("project_name")
+	columnNumber := com.StrTo(c.Query("column_number")).MustInt()
+	isAppend := c.Query("is_append")
+	numberLables := com.StrTo(c.Query("number_labels")).MustInt()
+	lineNumbers := com.StrTo(c.Query("line_numbers")).MustInt()
+
+	valid := validation.Validation{}
+	valid.Required(taskType, "task_type").Message("任务类型不呢个为空")
+	valid.Required(fileName, "file_name").Message("上传的文件不能为空")
+	valid.Required(projectName, "project_name").Message("分类树名不能为空")
+	valid.Required(columnNumber, "column_number").Message("处理的列数不能为空")
+	valid.Required(isAppend, "is_append").Message("添加不能为空，只能是或否")
+	valid.Range(numberLables, 0, 1, "number_labels").Message("数字标签只能是0或1") //0 代表单个标签多行拆分,1 代表多个标签多行拆分
+	valid.Min(lineNumbers, 0, "line_numbers").Message("拆分任务数不能为空")
+
+	data := make(map[string]interface{})
+	data["task_type"] = taskType
+	data["file_name"] = fileName
+	data["project_name"] = projectName
+	data["column_number"] = columnNumber
+	data["is_append"] = isAppend
+	data["number_labels"] = numberLables
+	data["line_numbers"] = lineNumbers
+
+	code := e.SUCCESS
+	c.JSON(http.StatusOK, gin.H{
+		"msg" : e.GetMsg(code),
+		"data" : make(map[string]interface{}),
+	})
+
+	
 }
 
 //提交mongo任务
 func TaskCommonSubmit(c *gin.Context) {
-	taskId := com.StrTo(c.Query("task_id")).MustInt()
-	UserId := com.StrTo(c.Query("user_id")).MustInt()
-	Type := c.Query("type")
-	State := c.DefaultQuery("state", "fail")
-	TaskStatus := c.DefaultQuery("task_status", "提交中")
-	TaskProjectName := c.Query("task_project_name")
-	SubTaskNumbers := com.StrTo(c.Query("sub_task_numbers")).MustInt()
 
-	valid := validation.Validation{}
-	valid.Min(taskId, 1, "task_id").Message("任务id必须大于0")
-	valid.Min(UserId, 1, "user_id").Message("用户id必须大于0")
-	valid.Required(Type, "type").Message("数据类型不能为空")
-	valid.Range(TaskStatus, "提交中", "提交成功", "task_status").Message("任务执行状态只能是提交中或任务完成")
-	valid.Range(State, "成功", "失败", "state").Message("任务状态只能是成功或失败")
-	valid.Required(TaskProjectName, "task_project_name").Message("任务名称不能为空")
-	valid.Min(SubTaskNumbers, 1,"sub_task_numbers").Message("子任务数必须大于0")
+	//taskType := "common"
+	//source := getDataSource(c *gin.Context)
+
+	//brand, series := models.GetBrands()
+	//limit := 100
 
 
-	code := e.INVALID_PARAMS
-
-	}
-
-
+	//startTime := time.Now().Unix()
+	
+    //执行跑批测试
+	//endTime := time.Now().Unix()
 	
 }
 

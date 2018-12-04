@@ -6,7 +6,7 @@ type Task struct {
 	TaskId int `json:"task_id" gorm:"index"` //任务id
 
 	UserId           int    `json:"user_id"`            //创建任务的用户id
-	TaskStatus       int    `json:"task_status"`        //任务状态
+	TaskStatus       string    `json:"task_status"`        //任务状态
 	Type             string `json:"type"`               //来源是csv还是数据库
 	TaskProjectName  string `json:"task_project_name"`  //分类树名
 	TaskColumnNumber int    `json:"task_column_number"` //分类数据列名
@@ -15,6 +15,16 @@ type Task struct {
 	EndTime          string `json:"end_time"`           //结束时间
 	SubTaskNumbers   int    `json:"sub_task_numbers"`   //子任务数
 
+}
+
+func GetDataSource(data string) (dataSource []string) {
+	//补充mongo数据库来源
+	return
+}
+
+func GetBrands(name string, series []string) (data map[string][]map[string]interface{}){
+	//补充mongo查询的数据
+	return
 }
 
 func GetTasks(pageNum int, pageSize int, maps interface{}) (tasks []Task) {
