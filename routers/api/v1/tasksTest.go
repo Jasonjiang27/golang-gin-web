@@ -48,8 +48,8 @@ func TaskProcess(c *gin.Context) {
 func TaskSubmit(c *gin.Context) {
 
 	//上传csv文件
-	file, _ := c.FormFile("file")
-	log.Println(file.Filename)
+	//file, _ := c.FormFile("file")
+	//log.Println(file.Filename)
 
 	taskType := c.Query("task_type")
 	fileName := c.Query("file_name")
@@ -68,22 +68,50 @@ func TaskSubmit(c *gin.Context) {
 	valid.Range(numberLables, 0, 1, "number_labels").Message("数字标签只能是0或1") //0 代表单个标签多行拆分,1 代表多个标签多行拆分
 	valid.Min(lineNumbers, 0, "line_numbers").Message("拆分任务数不能为空")
 
-	data := make(map[string]interface{})
-	data["task_type"] = taskType
-	data["file_name"] = fileName
-	data["project_name"] = projectName
-	data["column_number"] = columnNumber
-	data["is_append"] = isAppend
-	data["number_labels"] = numberLables
-	data["line_numbers"] = lineNumbers
+	//taskId := com.StrTo(c.Query("task_id")).MustInt()
+	userId := com.StrTo(c.Query("user_id")).MustInt()
+	fileLocation := c.Query("file_location")
+	limit := com.StrTo(c.Query("limit")).MustInt()
+	startTime := c.Query("start_time")
+	endTime := c.Query("end_time")
+	subTaskNumbers := com.StrTo(c.Query("sub_task_numbers")).MustInt()
+	code := e.INVALID_PARAMS
+	if ! valid.HasErrors() {
+		
+		data := make(map[string]interface{})
+		//data["task_id"] = taskId
+		data["user_id"] = userId
+		data["task_type"] = taskType
+		data["file_name"] = fileName
+		data["file_location"] = fileLocation
+		data["task_project_name"] = projectName
 
-	code := e.SUCCESS
+		data["task_column_number"] = columnNumber
+		//data["task_status"] = c.Query("task_status")
+		data["limit"] = limit
+
+		data["task_type"] = taskType
+		data["file_name"] = fileName
+		data["start_time"] = startTime
+		data["end_time"] = endTime
+		data["sub_task_numbers"] = subTaskNumbers
+		
+		models.TaskSubmit(data)
+
+		code = e.SUCCESS
+		
+	} else {
+		for _, err := range valid.Errors {
+			log.Println(err.Key, err.Message)
+		}
+	}
+	
 	c.JSON(http.StatusOK, gin.H{
+		"code" : code,
 		"msg" : e.GetMsg(code),
 		"data" : make(map[string]interface{}),
 	})
 
-	
 }
 
 //提交mongo任务
@@ -100,7 +128,55 @@ func TaskCommonSubmit(c *gin.Context) {
 	
     //执行跑批测试
 	//endTime := time.Now().Unix()
+	taskType := c.Query("task_type")
 	
+	projectName := c.Query("project_name")
+	columnNumber := com.StrTo(c.Query("column_number")).MustInt()
+
+
+
+	userId := com.StrTo(c.Query("user_id")).MustInt()
+	fileLocation := c.Query("file_location")
+	limit := com.StrTo(c.Query("limit")).MustInt()
+	startTime := c.Query("start_time")
+	endTime := c.Query("end_time")
+	subTaskNumbers := com.StrTo(c.Query("sub_task_numbers")).MustInt()
+
+
+	code := e.INVALID_PARAMS
+	data := make(map[string]interface{})
+
+	data["user_id"] = userId
+	data["task_type"] = taskType
+
+	data["file_location"] = fileLocation
+	data["task_project_name"] = projectName
+
+	data["task_column_number"] = columnNumber
+	//data["task_status"] = c.Query("task_status")
+	data["limit"] = limit
+
+	data["start_time"] = startTime
+	data["end_time"] = endTime
+	data["sub_task_numbers"] = subTaskNumbers
+		
+	//data["task_status"] = c.Query("task_status")
+	data["limit"] = limit
+
+
+
+	data["start_time"] = startTime
+	data["end_time"] = endTime
+	data["sub_task_numbers"] = subTaskNumbers
+	
+	models.TaskCommonSubmit(data)
+	code = e.SUCCESS
+
+	c.JSON(http.StatusOK, gin.H{
+		"code" : code,
+		"msg" : e.GetMsg(code),
+		"data" : make(map[string]interface{}),
+	})
 }
 
 //执行跑批测试
@@ -152,26 +228,27 @@ func GetTasks(c *gin.Context) {
 
 //跑批任务删除
 func DeleteTask(c *gin.Context) {
-	taskId := com.StrTo(c.Param("task_id")).MustInt()
+	task_id := com.StrTo(c.Param("task_id")).MustInt()
 
 	valid := validation.Validation{}
-	valid.Min(taskId, 1, "task_id").Message("任务id必须0")
+	valid.Min(task_id, 1, "task_id").Message("任务id必须大于0")
 
+	data := make(map[string]interface{})
 	code := e.INVALID_PARAMS
 	if ! valid.HasErrors() {
-		if models.ExistTaskById(taskId) {
-			models.DeleteTask(taskId)
-			code = e.SUCCESS
-		} else {
-			for _, err := range valid.Errors {
-				log.Fatal(err.Key, err.Message)
-			}
+		
+		models.DeleteTask(task_id)
+		code = e.SUCCESS
+		data["删除的任务"] = task_id
+	} else {
+		for _, err := range valid.Errors {
+			log.Println(err.Key, err.Message)
 		}
-		c.JSON(http.StatusOK, gin.H{
-			"code" : code,
-			"msg" : e.GetMsg(code),
-			"data" : make(map[string]string),
-
-		})
 	}
+	c.JSON(http.StatusOK, gin.H{
+		"code" : code,
+		"msg" : e.GetMsg(code),
+		"data" : data,
+
+	})
 }
