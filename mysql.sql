@@ -26,19 +26,19 @@ CREATE TABLE IF NOT EXISTS tea_subTasks(
 
 //总任务表
 CREATE TABLE IF NOT EXISTS tea_task (
-    taskID int PRIMARY KEY comment '任务id',
-    userId int comment '用户id',
-    taskStatus VARCHAR(100) comment '任务状态',
-    `type` VARCHAR(20) comment '是csv还是直接从数据库导出的',
-    `filename` VARCHAR(100) comment '文件名',
-    fileLocation VARCHAR(100) comment '文件位置',
-    taskProjectName VARCHAR(100) comment '分类树名',
-    taskColumnNumber INT comment '分类数据列名',
-    dataSource VARCHAR(100) comment '数据来源(如果是来源mongo的话)',
+    task_id int PRIMARY KEY AUTO_INCREMENT comment '任务id',
+    user_id int comment '用户id',
+    task_status VARCHAR(100) comment '任务状态',
+    `task_type` VARCHAR(20) NOT NULL comment '是csv还是直接从数据库导出的',
+    `file_name` VARCHAR(100) comment '文件名',
+    file_location VARCHAR(100) comment '文件位置',
+    task_project_name VARCHAR(100) NOT NULL comment '分类树名',
+    task_column_number INT NOT NULL comment '分类数据列名',
+    data_source VARCHAR(100) comment '数据来源(如果是来源mongo的话)',
     `limit` INT comment '条数限制',
-    startTime DATETIME comment '起始时间',
-    endTime DATETIME comment '结束时间',
-    subTaskNumbers INT comment '子任务数量'
+    start_time DATETIME comment '起始时间',
+    end_time DATETIME comment '结束时间',
+    sub_task_numbers INT comment '子任务数量'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='总任务表'
 
 //任务相关信息表
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS tea_taskInfo(
     taskUserId INT comment '当前任务所有者',
     taskUserPower INT comment '当前任务所有者权限',
     taskStatus VARCHAR(50) comment '任务状态',
-    taskPriority INT comment '任务优先级'
+    taskPriority INT comment '任务优先级',
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='任务相关信息表';
 
 //任务结果表
