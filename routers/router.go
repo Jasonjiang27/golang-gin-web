@@ -23,10 +23,10 @@ func InitRouter() *gin.Engine {
 		apiv1.GET("/getBrands", v1.GetBrands)
 
 		//跑批结果文件下载
-		apiv1.GET("downFile/:taskId", v1.DownFile)
+		apiv1.GET("downFile/:task_id", v1.DownFile)
 
 		//查看任务进度
-		apiv1.GET("/taskProcess/:taskId", v1.TaskProcess)
+		apiv1.GET("/taskProcess/:task_id", v1.TaskProcess)
 
 		//提交csv任务
 		apiv1.POST("/taskSubmit", v1.TaskSubmit)

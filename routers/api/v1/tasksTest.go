@@ -38,11 +38,11 @@ func TaskProcess(c *gin.Context) {
 func TaskSubmit(c *gin.Context) {
 
 	//上传csv文件
-	//file, _ := c.FormFile("file")
-	//log.Println(file.Filename)
+	file, _ := c.FormFile("file")
+	log.Println(file.Filename)
 
 	taskType := c.Query("task_type")
-	fileName := c.Query("file_name")
+	fileName := file.Filename
 	projectName := c.Query("project_name")
 	columnNumber := com.StrTo(c.Query("column_number")).MustInt()
 	isAppend := c.Query("is_append")
