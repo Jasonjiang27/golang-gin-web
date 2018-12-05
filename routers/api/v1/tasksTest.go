@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Unknwon/com"
-	"github.com/astaxie/beego/validation"  //golang数据校验的一个包
+	"github.com/astaxie/beego/validation" //golang数据校验的一个包
 	"github.com/gin-gonic/gin"
 
 	"golang-gin-web/models"
@@ -37,8 +37,6 @@ func TaskProcess(c *gin.Context) {
 //提交csv任务
 func TaskSubmit(c *gin.Context) {
 
-<<<<<<< HEAD
-=======
 	//上传csv文件
 	//file, _ := c.FormFile("file")
 	//log.Println(file.Filename)
@@ -68,8 +66,8 @@ func TaskSubmit(c *gin.Context) {
 	endTime := c.Query("end_time")
 	subTaskNumbers := com.StrTo(c.Query("sub_task_numbers")).MustInt()
 	code := e.INVALID_PARAMS
-	if ! valid.HasErrors() {
-		
+	if !valid.HasErrors() {
+
 		data := make(map[string]interface{})
 		//data["task_id"] = taskId
 		data["user_id"] = userId
@@ -87,48 +85,42 @@ func TaskSubmit(c *gin.Context) {
 		data["start_time"] = startTime
 		data["end_time"] = endTime
 		data["sub_task_numbers"] = subTaskNumbers
-		
+
 		models.TaskSubmit(data)
 
 		code = e.SUCCESS
-		
+
 	} else {
 		for _, err := range valid.Errors {
 			log.Println(err.Key, err.Message)
 		}
 	}
-	
+
 	c.JSON(http.StatusOK, gin.H{
-		"code" : code,
-		"msg" : e.GetMsg(code),
-		"data" : make(map[string]interface{}),
+		"code": code,
+		"msg":  e.GetMsg(code),
+		"data": make(map[string]interface{}),
 	})
 
->>>>>>> 71f05493a1d898ff4204b51cfd5154454e5721d3
 }
 
 //提交mongo任务
 func TaskCommonSubmit(c *gin.Context) {
 
-<<<<<<< HEAD
-=======
 	//taskType := "common"
 	//source := getDataSource(c *gin.Context)
 
 	//brand, series := models.GetBrands()
 	//limit := 100
 
-
 	//startTime := time.Now().Unix()
-	
-    //执行跑批测试
+
+	//执行跑批测试
 	//endTime := time.Now().Unix()
 	taskType := c.Query("task_type")
-	
+
 	projectName := c.Query("project_name")
 	columnNumber := com.StrTo(c.Query("column_number")).MustInt()
-
-
 
 	userId := com.StrTo(c.Query("user_id")).MustInt()
 	fileLocation := c.Query("file_location")
@@ -136,7 +128,6 @@ func TaskCommonSubmit(c *gin.Context) {
 	startTime := c.Query("start_time")
 	endTime := c.Query("end_time")
 	subTaskNumbers := com.StrTo(c.Query("sub_task_numbers")).MustInt()
-
 
 	code := e.INVALID_PARAMS
 	data := make(map[string]interface{})
@@ -154,37 +145,34 @@ func TaskCommonSubmit(c *gin.Context) {
 	data["start_time"] = startTime
 	data["end_time"] = endTime
 	data["sub_task_numbers"] = subTaskNumbers
-		
+
 	//data["task_status"] = c.Query("task_status")
 	data["limit"] = limit
-
-
 
 	data["start_time"] = startTime
 	data["end_time"] = endTime
 	data["sub_task_numbers"] = subTaskNumbers
-	
+
 	models.TaskCommonSubmit(data)
 	code = e.SUCCESS
 
 	c.JSON(http.StatusOK, gin.H{
-		"code" : code,
-		"msg" : e.GetMsg(code),
-		"data" : make(map[string]interface{}),
+		"code": code,
+		"msg":  e.GetMsg(code),
+		"data": make(map[string]interface{}),
 	})
 }
 
 //执行跑批测试
-func TaskTest(){
+func TaskTest() {
 
->>>>>>> 71f05493a1d898ff4204b51cfd5154454e5721d3
 }
 
 //获取任务列表
 func GetTasks(c *gin.Context) {
 	maps := make(map[string]interface{})
 	data := make(map[string]interface{})
-	valid := validation.Validation{}  //数据校验功能
+	valid := validation.Validation{} //数据校验功能
 
 	var taskId int = -1
 	if arg := c.Query("task_id"); arg != "" {
@@ -224,9 +212,7 @@ func GetTasks(c *gin.Context) {
 
 //跑批任务删除
 func DeleteTask(c *gin.Context) {
-<<<<<<< HEAD
 
-=======
 	task_id := com.StrTo(c.Param("task_id")).MustInt()
 
 	valid := validation.Validation{}
@@ -234,8 +220,8 @@ func DeleteTask(c *gin.Context) {
 
 	data := make(map[string]interface{})
 	code := e.INVALID_PARAMS
-	if ! valid.HasErrors() {
-		
+	if !valid.HasErrors() {
+
 		models.DeleteTask(task_id)
 		code = e.SUCCESS
 		data["删除的任务"] = task_id
@@ -245,10 +231,9 @@ func DeleteTask(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"code" : code,
-		"msg" : e.GetMsg(code),
-		"data" : data,
-
+		"code": code,
+		"msg":  e.GetMsg(code),
+		"data": data,
 	})
->>>>>>> 71f05493a1d898ff4204b51cfd5154454e5721d3
+
 }
