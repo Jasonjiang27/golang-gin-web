@@ -66,8 +66,10 @@ func TaskSubmit(c *gin.Context) {
 	end_time := c.Query("end_time")
 	task_status := c.Query("task_status")
 	sub_task_numbers := com.StrTo(c.Query("sub_task_numbers")).MustInt()
-	code := e.INVALID_PARAMS
+	code1 := e.INVALID_PARAMS
+	code2 := e.INVALID_PARAMS
 	if !valid.HasErrors() {
+
 		//数据插入总任务表
 		data_task := make(map[string]interface{})
 		//data["task_id"] = taskId
@@ -85,12 +87,22 @@ func TaskSubmit(c *gin.Context) {
 		data_task["end_time"] = end_time
 		data_task["sub_task_numbers"] = sub_task_numbers
 
-
 		models.TaskSubmit(data_task)
-		code = e.SUCCESS1
+		code1 = e.SUCCESS1
 
+
+		//数据插入子任务表
 		data_sub_task := make(map[string]interface{})
-		data_sub_task[""]
+		data_sub_task["task_id"] = c.Query("task_id")
+		
+		data_sub_task["task_text"] = task_text
+		data_sub_task["task_project_name"] = task_project_name
+		data_sub_task["number_id"] = number_id
+		data_sub_task["task_type"] = task_type
+
+		models.AddSubTask(data_sub_task)
+		code2 = e.SUCCESS2
+
 
 	} else {
 		for _, err := range valid.Errors {
@@ -99,12 +111,13 @@ func TaskSubmit(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"code": code,
-		"msg":  e.GetMsg(code),
+		"code1": code1,
+		"code2": code2,
+		"msg":  e.GetMsg(code1+code2),
 		"data": make(map[string]interface{}),
 	})
 
-	//数据插入子任务表
+	
 
 }
 
@@ -176,6 +189,9 @@ func TaskCommonSubmit(c *gin.Context) {
 func TaskTest() {
 
 }
+
+//csv文件文本读取
+
 
 //获取任务列表
 func GetTasks(c *gin.Context) {
