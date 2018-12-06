@@ -38,7 +38,7 @@ func InitRouter() *gin.Engine {
 		apiv1.GET("/getTasks", v1.GetTasks)
 
 		//删除任务
-		apiv1.DELETE("/task/:task_id", v1.DeleteTask)
+		apiv1.GET("/deleteTask/:task_id", v1.DeleteTask)
 	}
 
 	return r

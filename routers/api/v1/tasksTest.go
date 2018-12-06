@@ -38,53 +38,52 @@ func TaskProcess(c *gin.Context) {
 func TaskSubmit(c *gin.Context) {
 
 	//上传csv文件
-	file, _ := c.FormFile("file")
-	log.Println(file.Filename)
+	//file, _ := c.FormFile("file")
+	//log.Println(file.Filename)
 
-	taskType := c.Query("task_type")
-	fileName := file.Filename
-	projectName := c.Query("project_name")
-	columnNumber := com.StrTo(c.Query("column_number")).MustInt()
-	isAppend := c.Query("is_append")
-	numberLables := com.StrTo(c.Query("number_labels")).MustInt()
-	lineNumbers := com.StrTo(c.Query("line_numbers")).MustInt()
+	task_type := "csv"
+	file_name := c.Query("file_name")
+	task_project_name := c.Query("task_project_name")
+	task_column_number := com.StrTo(c.Query("task_column_number")).MustInt()
+	is_append := c.Query("is_append")
+	number_lables := com.StrTo(c.Query("number_labels")).MustInt()
+	line_numbers := com.StrTo(c.Query("line_numbers")).MustInt()
 
 	valid := validation.Validation{}
-	valid.Required(taskType, "task_type").Message("任务类型不呢个为空")
-	valid.Required(fileName, "file_name").Message("上传的文件不能为空")
-	valid.Required(projectName, "project_name").Message("分类树名不能为空")
-	valid.Required(columnNumber, "column_number").Message("处理的列数不能为空")
-	valid.Required(isAppend, "is_append").Message("添加不能为空，只能是或否")
-	valid.Range(numberLables, 0, 1, "number_labels").Message("数字标签只能是0或1") //0 代表单个标签多行拆分,1 代表多个标签多行拆分
-	valid.Min(lineNumbers, 0, "line_numbers").Message("拆分任务数不能为空")
+	valid.Required(task_type, "task_type").Message("任务类型不能为空")
+	valid.Required(file_name, "file_name").Message("上传的文件不能为空")
+	valid.Required(task_project_name, "task_project_name").Message("分类树名不能为空")
+	valid.Required(task_column_number, "task_column_number").Message("处理的列数不能为空")
+	valid.Required(is_append, "is_append").Message("添加不能为空，只能是或否")
+	valid.Range(number_lables, 0, 1, "number_labels").Message("数字标签只能是0或1") //0 代表单个标签多行拆分,1 代表多个标签多行拆分
+	valid.Min(line_numbers, 0, "line_numbers").Message("拆分任务数不能为空")
 
 	//taskId := com.StrTo(c.Query("task_id")).MustInt()
-	userId := com.StrTo(c.Query("user_id")).MustInt()
-	fileLocation := c.Query("file_location")
+	user_id := com.StrTo(c.Query("user_id")).MustInt()
+	file_location := c.Query("file_location")
 	limit := com.StrTo(c.Query("limit")).MustInt()
-	startTime := c.Query("start_time")
-	endTime := c.Query("end_time")
-	subTaskNumbers := com.StrTo(c.Query("sub_task_numbers")).MustInt()
+	start_time := c.Query("start_time")
+	end_time := c.Query("end_time")
+	task_status := c.Query("task_status")
+	sub_task_numbers := com.StrTo(c.Query("sub_task_numbers")).MustInt()
 	code := e.INVALID_PARAMS
 	if !valid.HasErrors() {
 
 		data := make(map[string]interface{})
 		//data["task_id"] = taskId
-		data["user_id"] = userId
-		data["task_type"] = taskType
-		data["file_name"] = fileName
-		data["file_location"] = fileLocation
-		data["task_project_name"] = projectName
+		data["user_id"] = user_id
+		data["task_type"] = "csv"
+		data["file_name"] = file_name
+		data["file_location"] = file_location
+		data["task_project_name"] = task_project_name
 
-		data["task_column_number"] = columnNumber
-		//data["task_status"] = c.Query("task_status")
+		data["task_column_number"] = task_column_number
+		data["task_status"] = task_status
 		data["limit"] = limit
 
-		data["task_type"] = taskType
-		data["file_name"] = fileName
-		data["start_time"] = startTime
-		data["end_time"] = endTime
-		data["sub_task_numbers"] = subTaskNumbers
+		data["start_time"] = start_time
+		data["end_time"] = end_time
+		data["sub_task_numbers"] = sub_task_numbers
 
 		models.TaskSubmit(data)
 
@@ -107,55 +106,60 @@ func TaskSubmit(c *gin.Context) {
 //提交mongo任务
 func TaskCommonSubmit(c *gin.Context) {
 
-	//taskType := "common"
-	//source := getDataSource(c *gin.Context)
-
-	//brand, series := models.GetBrands()
-	//limit := 100
-
-	//startTime := time.Now().Unix()
-
-	//执行跑批测试
-	//endTime := time.Now().Unix()
-	taskType := c.Query("task_type")
-
-	projectName := c.Query("project_name")
-	columnNumber := com.StrTo(c.Query("column_number")).MustInt()
-
-	userId := com.StrTo(c.Query("user_id")).MustInt()
-	fileLocation := c.Query("file_location")
+	task_type := "common"
+	data_source := c.Query("data_source")
+	brand := c.Query("brand")
+	series := c.Query("series")
 	limit := com.StrTo(c.Query("limit")).MustInt()
-	startTime := c.Query("start_time")
-	endTime := c.Query("end_time")
-	subTaskNumbers := com.StrTo(c.Query("sub_task_numbers")).MustInt()
+	task_project_name := c.Query("task_project_name")
+	
+	line_numbers := com.StrTo(c.Query("line_numbers")).MustInt()
+	time_from := c.Query("time_from")
+	time_to := c.Query("time_to")
+
+	valid := validation.Validation{}
+	valid.Required(task_type, "task_type").Message("任务类型不能为空")
+	valid.Required(data_source, "data_source").Message("护具来源不能为空")
+	valid.Required(brand, "brand").Message("车品牌不能为空")
+	valid.Required(series, "series").Message("车系不能为空")
+	valid.Required(task_project_name, "task_project_name").Message("分类树名不能为空")
+	
+	valid.Min(line_numbers, 0, "line_numbers").Message("拆分任务数不能为空,0代表不拆分")
+	valid.Required(time_to, "time_to").Message("任务筛选结束时间不能为空")
+	valid.Required(time_from, "time_from").Message("任务筛选起始时间不能为空")
+
+	user_id := com.StrTo(c.Query("user_id")).MustInt()
+	//file_location := c.Query("file_location")
+	
+	start_time := c.Query("start_time")
+	end_time := c.Query("end_time")
+	sub_task_numbers := com.StrTo(c.Query("sub_task_numbers")).MustInt()
+	task_status := c.Query("task_status")
 
 	code := e.INVALID_PARAMS
-	data := make(map[string]interface{})
+	if !valid.HasErrors() {
+		data := make(map[string]interface{})
+		data["user_id"] = user_id
+		data["task_type"] = "common"
+		data["data_source"] = data_source
+		//data["file_location"] = file_location
+		data["task_project_name"] = task_project_name
 
-	data["user_id"] = userId
-	data["task_type"] = taskType
+		
+		//data["task_status"] = c.Query("task_status")
+		data["limit"] = limit
+		data["task_status"] = task_status
+		data["start_time"] = start_time
+		data["end_time"] = end_time
+		data["sub_task_numbers"] = sub_task_numbers
 
-	data["file_location"] = fileLocation
-	data["task_project_name"] = projectName
-
-	data["task_column_number"] = columnNumber
-	//data["task_status"] = c.Query("task_status")
-	data["limit"] = limit
-
-	data["start_time"] = startTime
-	data["end_time"] = endTime
-	data["sub_task_numbers"] = subTaskNumbers
-
-	//data["task_status"] = c.Query("task_status")
-	data["limit"] = limit
-
-	data["start_time"] = startTime
-	data["end_time"] = endTime
-	data["sub_task_numbers"] = subTaskNumbers
-
-	models.TaskCommonSubmit(data)
-	code = e.SUCCESS
-
+		models.TaskCommonSubmit(data)
+		code = e.SUCCESS
+	} else {
+		for _, err := range valid.Errors {
+			log.Println(err.Key, err.Message)
+		}
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
 		"msg":  e.GetMsg(code),
