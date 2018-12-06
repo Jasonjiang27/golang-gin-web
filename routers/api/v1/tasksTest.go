@@ -68,26 +68,29 @@ func TaskSubmit(c *gin.Context) {
 	sub_task_numbers := com.StrTo(c.Query("sub_task_numbers")).MustInt()
 	code := e.INVALID_PARAMS
 	if !valid.HasErrors() {
-
-		data := make(map[string]interface{})
+		//数据插入总任务表
+		data_task := make(map[string]interface{})
 		//data["task_id"] = taskId
-		data["user_id"] = user_id
-		data["task_type"] = "csv"
-		data["file_name"] = file_name
-		data["file_location"] = file_location
-		data["task_project_name"] = task_project_name
+		data_task["user_id"] = user_id
+		data_task["task_type"] = task_type
+		data_task["file_name"] = file_name
+		data_task["file_location"] = file_location
+		data_task["task_project_name"] = task_project_name
 
-		data["task_column_number"] = task_column_number
-		data["task_status"] = task_status
-		data["limit"] = limit
+		data_task["task_column_number"] = task_column_number
+		data_task["task_status"] = task_status
+		data_task["limit"] = limit
 
-		data["start_time"] = start_time
-		data["end_time"] = end_time
-		data["sub_task_numbers"] = sub_task_numbers
+		data_task["start_time"] = start_time
+		data_task["end_time"] = end_time
+		data_task["sub_task_numbers"] = sub_task_numbers
 
-		models.TaskSubmit(data)
 
-		code = e.SUCCESS
+		models.TaskSubmit(data_task)
+		code = e.SUCCESS1
+
+		data_sub_task := make(map[string]interface{})
+		data_sub_task[""]
 
 	} else {
 		for _, err := range valid.Errors {
@@ -100,6 +103,8 @@ func TaskSubmit(c *gin.Context) {
 		"msg":  e.GetMsg(code),
 		"data": make(map[string]interface{}),
 	})
+
+	//数据插入子任务表
 
 }
 

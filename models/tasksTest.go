@@ -2,14 +2,14 @@ package models
 
 import (
 	"time"
-
+	
 	"github.com/jinzhu/gorm"
 )
 
 type Task struct {
 	//Model
 
-	task_id int `json:"task_id" gorm:"index"` //任务id
+	taskId int `json:"taskId" gorm:"index"` //任务id
 
 	UserId           int    `json:"user_id"`            //创建任务的用户id
 	TaskStatus       string `json:"task_status"`        //任务状态
@@ -24,6 +24,7 @@ type Task struct {
 	StartTime       string `json:"start_time"`       //开始时间
 	EndTime         string `json:"end_time"`         //结束时间
 	SubTaskNumbers int    `json:"sub_task_numbers"` //子任务数
+
 
 }
 
@@ -50,11 +51,11 @@ func GetTasksTotal(maps interface{}) (count int) {
 }
 
 //判断任务是否存在
-func ExistTaskById(task_id int) bool {
+func ExistTaskById(taskId int) bool {
 	var task Task
-	db.Select("task_id").Where("task_id = ?", task_id).First(&task)
+	db.Select("taskId").Where("taskId = ?", taskId).First(&task)
 
-	if task.task_id > 0 {
+	if task.taskId > 0 {
 		return true
 	}
 	return false
@@ -62,7 +63,7 @@ func ExistTaskById(task_id int) bool {
 
 func TaskSubmit(data map[string]interface{}) error {
 	task := Task{
-		//TaskId: data["task_id"].(int),
+		//TaskId: data["taskId"].(int),
 		UserId:           data["user_id"].(int),
 		TaskType:         data["task_type"].(string),
 		FileName:         data["file_name"].(string),
