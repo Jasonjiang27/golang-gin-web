@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"strings"
 
-
 	"github.com/Unknwon/com"
 	"github.com/astaxie/beego/validation" //golang数据校验的一个包
 	"github.com/gin-gonic/gin"
@@ -45,12 +44,12 @@ func TaskProcess(c *gin.Context) {
 
 	data1["task_id"] = task_id
 	data2["task_id"] = task_id
-	data2["status"]  = "成功"
+	data2["status"] = "成功"
 
-	sub_tasks_total := models.SubTaskCount(data1)  			 //子任务总数
-	sub_tasks_done_total := models.SubTaskDoneCount(data2)   //子任务完成数
+	sub_tasks_total := models.SubTaskCount(data1)          //子任务总数
+	sub_tasks_done_total := models.SubTaskDoneCount(data2) //子任务完成数
 	log.Printf("总任务数：%d,子任务完成数：%d", sub_tasks_total, sub_tasks_done_total)
-	task_process := float64(sub_tasks_done_total) / float64(sub_tasks_total)  //进度
+	task_process := float64(sub_tasks_done_total) / float64(sub_tasks_total) //进度
 
 	s := fmt.Sprintf("%.2f", task_process) //保留2位小数
 
@@ -78,12 +77,12 @@ func UploadFile(c *gin.Context) {
 	filename := header.Filename
 	fmt.Println(file, err, filename)
 	file_format := strings.Split(filename, ".")
-	if file_format[len(file_format) - 1] != "csv" {
+	if file_format[len(file_format)-1] != "csv" {
 		c.String(http.StatusBadRequest, "请上传csv格式文件")
 	} else {
 		code := e.SUCCESS
 		c.JSON(http.StatusOK, gin.H{
-			"msg": "上传文件成功",
+			"msg":  "上传文件成功",
 			"code": code,
 		})
 	}
@@ -119,7 +118,7 @@ func TaskSubmit(c *gin.Context) {
 	task_status := c.Query("task_status")
 	sub_task_numbers := com.StrTo(c.Query("sub_task_numbers")).MustInt()
 	code := e.INVALID_PARAMS
-	
+
 	if !valid.HasErrors() {
 
 		//数据插入总任务表
@@ -142,13 +141,12 @@ func TaskSubmit(c *gin.Context) {
 		models.TaskSubmit(data_task)
 		//code1 = e.SUCCESS_total_task
 
-
 		//数据插入子任务表
 		task_text := c.Query("task_text")
 		number_id := com.StrTo(c.Query("number_id")).MustInt()
 		data_sub_task := make(map[string]interface{})
-		data_sub_task["task_id"] = com.StrTo(c.Query("task_id")).MustInt()  //TODO:需要关联至总任务表中的task_id
-		
+		data_sub_task["task_id"] = com.StrTo(c.Query("task_id")).MustInt() //TODO:需要关联至总任务表中的task_id
+
 		data_sub_task["task_text"] = task_text
 		data_sub_task["task_project_name"] = task_project_name
 		data_sub_task["number_id"] = number_id
@@ -167,11 +165,9 @@ func TaskSubmit(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code1": code,
 		"code2": code,
-		"msg":  e.GetMsg(code),
-		"data": make(map[string]interface{}),
+		"msg":   e.GetMsg(code),
+		"data":  make(map[string]interface{}),
 	})
-
-	
 
 }
 
@@ -184,7 +180,7 @@ func TaskCommonSubmit(c *gin.Context) {
 	series := c.Query("series")
 	limit := com.StrTo(c.Query("limit")).MustInt()
 	task_project_name := c.Query("task_project_name")
-	
+
 	line_numbers := com.StrTo(c.Query("line_numbers")).MustInt()
 	time_from := c.Query("time_from")
 	time_to := c.Query("time_to")
@@ -195,14 +191,14 @@ func TaskCommonSubmit(c *gin.Context) {
 	valid.Required(brand, "brand").Message("车品牌不能为空")
 	valid.Required(series, "series").Message("车系不能为空")
 	valid.Required(task_project_name, "task_project_name").Message("分类树名不能为空")
-	
+
 	valid.Min(line_numbers, 0, "line_numbers").Message("拆分任务数不能为空,0代表不拆分")
 	valid.Required(time_to, "time_to").Message("任务筛选结束时间不能为空")
 	valid.Required(time_from, "time_from").Message("任务筛选起始时间不能为空")
 
 	user_id := com.StrTo(c.Query("user_id")).MustInt()
 	//file_location := c.Query("file_location")
-	
+
 	start_time := c.Query("start_time")
 	end_time := c.Query("end_time")
 	sub_task_numbers := com.StrTo(c.Query("sub_task_numbers")).MustInt()
@@ -217,7 +213,6 @@ func TaskCommonSubmit(c *gin.Context) {
 		//data["file_location"] = file_location
 		data["task_project_name"] = task_project_name
 
-		
 		//data["task_status"] = c.Query("task_status")
 		data["limit"] = limit
 		data["task_status"] = task_status
@@ -243,7 +238,6 @@ func TaskCommonSubmit(c *gin.Context) {
 func TaskTest() {
 
 }
-
 
 //获取任务列表
 func GetTasks(c *gin.Context) {

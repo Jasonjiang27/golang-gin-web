@@ -30,7 +30,7 @@ func InitRouter() *gin.Engine {
 
 		//csv文件上传
 		apiv1.POST("/upload", v1.UploadFile)
-		
+
 		//提交csv任务
 		apiv1.POST("/taskSubmit", v1.TaskSubmit)
 

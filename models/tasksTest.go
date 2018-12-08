@@ -2,7 +2,7 @@ package models
 
 import (
 	"time"
-	
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -19,12 +19,11 @@ type Task struct {
 	TaskProjectName  string `json:"task_project_name"`  //分类树名
 	TaskColumnNumber int    `json:"task_column_number"` //分类数据列名
 
-	DataSource      string `json:"data_source"`      //数据来源（mongo数据源）
-	Limit            int    `json:"limit"`            //条数限制
-	StartTime       string `json:"start_time"`       //开始时间
-	EndTime         string `json:"end_time"`         //结束时间
+	DataSource     string `json:"data_source"`      //数据来源（mongo数据源）
+	Limit          int    `json:"limit"`            //条数限制
+	StartTime      string `json:"start_time"`       //开始时间
+	EndTime        string `json:"end_time"`         //结束时间
 	SubTaskNumbers int    `json:"sub_task_numbers"` //子任务数
-	
 
 }
 
@@ -72,10 +71,10 @@ func TaskSubmit(data map[string]interface{}) error {
 		TaskStatus:       data["task_status"].(string),
 		TaskProjectName:  data["task_project_name"].(string),
 		TaskColumnNumber: data["task_column_number"].(int),
-		Limit:             data["limit"].(int),
+		Limit:            data["limit"].(int),
 		StartTime:        data["start_time"].(string),
 		EndTime:          data["end_time"].(string),
-		SubTaskNumbers:  data["sub_task_numbers"].(int),
+		SubTaskNumbers:   data["sub_task_numbers"].(int),
 	}
 	if err := db.Create(&task).Error; err != nil {
 		return err
@@ -87,16 +86,16 @@ func TaskSubmit(data map[string]interface{}) error {
 //提交舆情任务
 func TaskCommonSubmit(data map[string]interface{}) error {
 	task := Task{
-		UserId:           data["user_id"].(int),
-		TaskType:         data["task_type"].(string),
-		TaskStatus:       data["task_status"].(string),
-		TaskProjectName:  data["task_project_name"].(string),
-		
-	    DataSource:       data["data_source"].(string),
-		Limit:             data["limit"].(int),
-		StartTime:        data["start_time"].(string),
-		EndTime:          data["end_time"].(string),
-		SubTaskNumbers:  data["sub_task_numbers"].(int),
+		UserId:          data["user_id"].(int),
+		TaskType:        data["task_type"].(string),
+		TaskStatus:      data["task_status"].(string),
+		TaskProjectName: data["task_project_name"].(string),
+
+		DataSource:     data["data_source"].(string),
+		Limit:          data["limit"].(int),
+		StartTime:      data["start_time"].(string),
+		EndTime:        data["end_time"].(string),
+		SubTaskNumbers: data["sub_task_numbers"].(int),
 	}
 	if err := db.Create(&task).Error; err != nil {
 		return err
