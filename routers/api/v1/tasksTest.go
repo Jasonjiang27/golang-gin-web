@@ -36,7 +36,7 @@ func DownFile(c *gin.Context) {
 
 //查看任务进度
 func TaskProcess(c *gin.Context) {
-	task_id := c.Query("task_id")
+	task_id := com.StrTo(c.Query("task_id")).MustInt()
 	//task_uid := c.Query("task_uid")
 
 	code := e.INVALID_PARAMS
