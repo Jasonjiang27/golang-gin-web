@@ -24,7 +24,7 @@ type Task struct {
 	StartTime       string `json:"start_time"`       //开始时间
 	EndTime         string `json:"end_time"`         //结束时间
 	SubTaskNumbers int    `json:"sub_task_numbers"` //子任务数
-
+	
 
 }
 
@@ -61,6 +61,7 @@ func ExistTaskById(taskId int) bool {
 	return false
 }
 
+//提交csv任务
 func TaskSubmit(data map[string]interface{}) error {
 	task := Task{
 		//TaskId: data["taskId"].(int),
@@ -83,6 +84,7 @@ func TaskSubmit(data map[string]interface{}) error {
 	return nil
 }
 
+//提交舆情任务
 func TaskCommonSubmit(data map[string]interface{}) error {
 	task := Task{
 		UserId:           data["user_id"].(int),

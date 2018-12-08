@@ -2,8 +2,8 @@ package e
 
 var MsgFlags = map[int]string {
 	SUCCESS : "OK",
-	SUCCESS1 : "成功添加总任务表",
-	SUCCESS2 : "成功添加子任务表",
+	SUCCESS_total_task : "成功添加总任务表",
+	SUCCESS_sub_task : "成功添加子任务表",
 	ERROR : "fail",
 	INVALID_PARAMS : "请求参数错误",
 

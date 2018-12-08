@@ -28,6 +28,9 @@ func InitRouter() *gin.Engine {
 		//查看任务进度
 		apiv1.GET("/taskProcess/:task_id", v1.TaskProcess)
 
+		//csv文件上传
+		apiv1.POST("/upload", v1.UploadFile)
+		
 		//提交csv任务
 		apiv1.POST("/taskSubmit", v1.TaskSubmit)
 

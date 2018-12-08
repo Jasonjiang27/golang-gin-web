@@ -15,13 +15,13 @@ CREATE TABLE IF NOT EXISTS tea_userstatus (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户状态表';
 
 //子任务表
-CREATE TABLE IF NOT EXISTS tea_subTasks (
-    taskId INT comment '当前任务id',
-    taskUid varchar(20) PRIMARY KEY comment '子任务的唯一id',
-    taskText text comment '任务的文本数据',
-    taskProjectName varchar(50) comment '需要跑批的模型',
-    numberId INT comment '序列号（csv文件的行数）',
-    `taskType` VARCHAR(20) comment '是csv还是直接从数据库导出'
+CREATE TABLE IF NOT EXISTS tea_sub_tasks (
+    task_id INT comment '当前任务id',
+    task_uid INT PRIMARY KEY AUTO_INCREMENT comment '子任务的唯一id',
+    task_text text comment '任务的文本数据',
+    task_project_name varchar(50) comment '需要跑批的模型',
+    number_id INT comment '序列号（csv文件的行数）',
+    `task_type` VARCHAR(20) comment '是csv还是直接从数据库导出'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='子任务表';
 
 //总任务表
@@ -36,8 +36,8 @@ CREATE TABLE IF NOT EXISTS tea_task (
     task_column_number INT comment '分类数据列名',
     `data_source` VARCHAR(100) comment '数据来源(如果是来源mongo的话)',
     `limit` INT comment '条数限制',
-    start_time DATETIME comment '起始时间',
-    end_time DATETIME comment '结束时间',
+    start_time VARCHAR(50) comment '起始时间',
+    end_time VARCHAR(50) comment '结束时间',
     sub_task_numbers INT comment '子任务数量'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='总任务表';
 
@@ -51,13 +51,14 @@ CREATE TABLE IF NOT EXISTS tea_taskInfo(
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='任务相关信息表';
 
 //任务结果表
-CREATE TABLE IF NOT EXISTS tea_taskResult(
-    taskUid VARCHAR(100) PRIMARY KEY,
-    numberId int comment '序列号',
+CREATE TABLE IF NOT EXISTS tea_task_result(
+    task_id INT comment '子任务对应的任务id',
+    task_uid INT PRIMARY KEY comment '子任务id',
+    number_id int comment '序列号(csv行数)',
     result text comment '分词结果',
-    taskText text comment '任务的文本数据',
+    task_text text comment '任务的文本数据',
     `status` VARCHAR(100) comment '是否分词成功',
-    answerJudge VARCHAR(100) comment '人工判断分词结果是否正确'
+    answer_judge VARCHAR(100) comment '人工判断分词结果是否正确'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='任务结果表';
 
 //规则表
