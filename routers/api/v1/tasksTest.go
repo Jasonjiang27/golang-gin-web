@@ -6,6 +6,7 @@ import (
 	//"math"
 	"log"
 	"net/http"
+
 	//"strings"
 
 	"github.com/Unknwon/com"
@@ -28,7 +29,6 @@ func GetDataSource(c *gin.Context) {
 func GetBrands(c *gin.Context) {
 
 }
-
 
 //查看任务进度
 func TaskProcess(c *gin.Context) {
@@ -61,7 +61,6 @@ func TaskProcess(c *gin.Context) {
 	})
 
 }
-
 
 //提交csv任务
 func TaskSubmit(c *gin.Context) {
@@ -170,7 +169,6 @@ func TaskCommonSubmit(c *gin.Context) {
 	valid.Required(time_to, "time_to").Message("任务筛选结束时间不能为空")
 	valid.Required(time_from, "time_from").Message("任务筛选起始时间不能为空")
 
-
 	user_id := com.StrTo(c.Query("user_id")).MustInt()
 	//file_location := c.Query("file_location")
 
@@ -178,7 +176,6 @@ func TaskCommonSubmit(c *gin.Context) {
 	end_time := c.Query("end_time")
 	sub_task_numbers := com.StrTo(c.Query("sub_task_numbers")).MustInt()
 	task_status := c.Query("task_status")
-
 
 	code := e.INVALID_PARAMS
 	if !valid.HasErrors() {
@@ -204,7 +201,7 @@ func TaskCommonSubmit(c *gin.Context) {
 		data_mongo["k_c_brand"] = c.Query("k_c_brand")
 		data_mongo["k_c_set"] = c.Query("k_c_set")
 
-		task_texts := models.FindData(data_mongo)  //获取mongo表中的所有文本内容数据
+		task_texts := models.FindData(data_mongo) //获取mongo表中的所有文本内容数据
 		for _, task_text := range task_texts {
 			data_sub_task := make(map[string]interface{})
 			data_sub_task["task_id"] = com.StrTo(c.Query("task_id")).MustInt() //TODO:需要关联至总任务表中的task_id
@@ -218,7 +215,6 @@ func TaskCommonSubmit(c *gin.Context) {
 			code = e.SUCCESS
 		}
 
-		
 	} else {
 		for _, err := range valid.Errors {
 			log.Println(err.Key, err.Message)
@@ -260,7 +256,7 @@ func GetTasks(c *gin.Context) {
 
 	if !valid.HasErrors() {
 
-		data["list"] = models.GetTasks(util.GetPage(c), setting.PageSize, maps)
+		data["list"] = models.GetTasks(util.GetPage(c), setting.AppSetting.PageSize, maps)
 		data["total"] = models.GetTasksTotal(maps)
 
 	} else {

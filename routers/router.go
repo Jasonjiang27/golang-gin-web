@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"golang-gin-web/pkg/setting"
+	"golang-gin-web/routers/api"
 	"golang-gin-web/routers/api/v1"
 )
 
@@ -12,7 +13,8 @@ func InitRouter() *gin.Engine {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 
-	gin.SetMode(setting.RunMode)
+	gin.SetMode(setting.ServerSetting.RunMode)
+	r.POST("/upload", api.UploadFile)
 
 	apiv1 := r.Group("/api/v1")
 	{
