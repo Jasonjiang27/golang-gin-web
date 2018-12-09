@@ -1,5 +1,5 @@
 package v1
-
+/*
 import (
 	"strings"
 	"time"
@@ -23,7 +23,8 @@ func CsvHandle(user_id int, csv_filename string, task_column_number int, task_pr
 	}
 	defer file_in.Close()
 
-	file_out, err := os.Create(task_project_name + "_" + csv_filename)  //创建一个新写入文件
+	file_out_name := task_project_name + "_" + csv_filename
+	file_out, err := os.Create(file_out_name)  //创建一个新写入文件
 
 	if err != nil {
 		panic(err)
@@ -42,7 +43,8 @@ func CsvHandle(user_id int, csv_filename string, task_column_number int, task_pr
 		text := row[task_column_number]
 		tae_text := make(map[string]interface{})
 		tae_text["body"] = text
-		cc_result := tae_client.getResult(tae_text, []string {task_project_name}, 'all')   //从tea服务返回标签结果
+
+		cc_result := tae_client.getResult(tae_text, []string {task_project_name}, 'all')   //从tea服务返回标签结果,处理的函数名有待修改
 
 		csv_line_list := []string {}
 		if is_append == false {
@@ -75,7 +77,7 @@ func CsvHandle(user_id int, csv_filename string, task_column_number int, task_pr
 				}
 			}
 		}
-		if file_add == 0 {
+		if file_add := 0 {
 			var result [][]string
 			rows = rows[1:]
 			result = append(csv_line_list, result)
@@ -100,4 +102,6 @@ func CsvHandle(user_id int, csv_filename string, task_column_number int, task_pr
 	task_result["task_project_name"] = task_project_name
 	task_result["task_column_number"] = task_column_number
 	task_result["file_add"] = file_add
+	task_result["file_out_name"] = file_out_name
 	return task_result
+	*/

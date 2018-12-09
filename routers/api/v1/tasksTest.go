@@ -6,7 +6,7 @@ import (
 	//"math"
 	"log"
 	"net/http"
-	"strings"
+	//"strings"
 
 	"github.com/Unknwon/com"
 	"github.com/astaxie/beego/validation" //golang数据校验的一个包
@@ -16,6 +16,7 @@ import (
 	"golang-gin-web/pkg/e"
 	"golang-gin-web/pkg/setting"
 	"golang-gin-web/pkg/util"
+	//"golang-gin-web/pkg/mongodb"
 )
 
 //获取数据来源
@@ -28,10 +29,6 @@ func GetBrands(c *gin.Context) {
 
 }
 
-//跑批结果文件下载
-func DownFile(c *gin.Context) {
-
-}
 
 //查看任务进度
 func TaskProcess(c *gin.Context) {
@@ -65,29 +62,6 @@ func TaskProcess(c *gin.Context) {
 
 }
 
-//上传csv文件
-func UploadFile(c *gin.Context) {
-	//name := c.PostForm("name")
-	//fmt.Println(name)
-	file, header, err := c.Request.FormFile("upload")
-	if err != nil {
-		c.String(http.StatusBadRequest, "Bad request")
-		return
-	}
-	filename := header.Filename
-	fmt.Println(file, err, filename)
-	file_format := strings.Split(filename, ".")
-	if file_format[len(file_format)-1] != "csv" {
-		c.String(http.StatusBadRequest, "请上传csv格式文件")
-	} else {
-		code := e.SUCCESS
-		c.JSON(http.StatusOK, gin.H{
-			"msg":  "上传文件成功",
-			"code": code,
-		})
-	}
-
-}
 
 //提交csv任务
 func TaskSubmit(c *gin.Context) {
@@ -196,6 +170,7 @@ func TaskCommonSubmit(c *gin.Context) {
 	valid.Required(time_to, "time_to").Message("任务筛选结束时间不能为空")
 	valid.Required(time_from, "time_from").Message("任务筛选起始时间不能为空")
 
+
 	user_id := com.StrTo(c.Query("user_id")).MustInt()
 	//file_location := c.Query("file_location")
 
@@ -204,24 +179,46 @@ func TaskCommonSubmit(c *gin.Context) {
 	sub_task_numbers := com.StrTo(c.Query("sub_task_numbers")).MustInt()
 	task_status := c.Query("task_status")
 
+
 	code := e.INVALID_PARAMS
 	if !valid.HasErrors() {
-		data := make(map[string]interface{})
-		data["user_id"] = user_id
-		data["task_type"] = "common"
-		data["data_source"] = data_source
+		data_task := make(map[string]interface{})
+		data_task["user_id"] = user_id
+		data_task["task_type"] = "common"
+		data_task["data_source"] = data_source
 		//data["file_location"] = file_location
-		data["task_project_name"] = task_project_name
+		data_task["task_project_name"] = task_project_name
 
 		//data["task_status"] = c.Query("task_status")
-		data["limit"] = limit
-		data["task_status"] = task_status
-		data["start_time"] = start_time
-		data["end_time"] = end_time
-		data["sub_task_numbers"] = sub_task_numbers
+		data_task["limit"] = limit
+		data_task["task_status"] = task_status
+		data_task["start_time"] = start_time
+		data_task["end_time"] = end_time
+		data_task["sub_task_numbers"] = sub_task_numbers
 
-		models.TaskCommonSubmit(data)
-		code = e.SUCCESS
+		models.TaskCommonSubmit(data_task)
+
+		//数据插入子任务表
+		data_mongo := make(map[string]interface{})
+		data_mongo["k_source"] = c.Query("k_source")
+		data_mongo["k_c_brand"] = c.Query("k_c_brand")
+		data_mongo["k_c_set"] = c.Query("k_c_set")
+
+		task_texts := models.FindData(data_mongo)  //获取mongo表中的所有文本内容数据
+		for _, task_text := range task_texts {
+			data_sub_task := make(map[string]interface{})
+			data_sub_task["task_id"] = com.StrTo(c.Query("task_id")).MustInt() //TODO:需要关联至总任务表中的task_id
+
+			data_sub_task["task_text"] = task_text.Content
+			data_sub_task["task_project_name"] = task_project_name
+			data_sub_task["task_type"] = task_type
+
+			models.AddSubTask(data_sub_task)
+			//code2 = e.SUCCESS_sub_task
+			code = e.SUCCESS
+		}
+
+		
 	} else {
 		for _, err := range valid.Errors {
 			log.Println(err.Key, err.Message)
