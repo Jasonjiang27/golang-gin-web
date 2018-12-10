@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS tea_userstatus (
 
 //子任务表
 CREATE TABLE IF NOT EXISTS tea_sub_tasks (
-    task_id INT comment '当前任务id',
+    task_id VARCHAR(100) comment '当前任务id',
     task_uid INT PRIMARY KEY AUTO_INCREMENT comment '子任务的唯一id',
     task_text text comment '任务的文本数据',
     task_project_name varchar(50) comment '需要跑批的模型',
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS tea_sub_tasks (
 
 //总任务表
 CREATE TABLE IF NOT EXISTS tea_task (
-    task_id int PRIMARY KEY AUTO_INCREMENT comment '任务id',
+    task_id VARCHAR(100) PRIMARY KEY comment '任务id',
     user_id int comment '用户id',
     task_status VARCHAR(100) comment '任务状态',
     task_type VARCHAR(20)  NOT NULL comment '是csv还是直接从数据库导出的',

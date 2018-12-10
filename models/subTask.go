@@ -6,7 +6,7 @@ import (
 
 //子任务
 type SubTasks struct {
-	TaskId          int    `json:"task_id"`               //任务id
+	TaskId          string    `json:"task_id"`               //任务id
 	TaskUid         int    `json:"task_uid" gorm:"index"` //子任务id
 	TaskText        string `json:"task_text"`             //子任务文本数据
 	TaskProjectName string `json:"task_project_name"`     //任务分类树名
@@ -42,14 +42,14 @@ func SubTaskDoneCount(maps interface{}) (count int) {
 //创建子任务插入数据表
 func AddSubTask(data map[string]interface{}) error {
 	subTask := SubTasks{
-		TaskId:          data["task_id"].(int),
+		TaskId:          data["task_id"].(string),
 		TaskText:        data["task_text"].(string),
 		TaskProjectName: data["task_project_name"].(string),
 		NumberId:        data["number_id"].(int),
 		TaskType:        data["task_type"].(string),
 	}
 
-	if err := db.Preload("Task").Create(&subTask).Error; err != nil {
+	if err := db.Create(&subTask).Error; err != nil {
 		return err
 	}
 	return nil

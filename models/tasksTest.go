@@ -9,7 +9,7 @@ import (
 type Task struct {
 	//Model
 
-	taskId int `json:"taskId" gorm:"index"` //任务id
+	TaskId 			string `json:"task_id" gorm:"index"` //任务id
 
 	UserId           int    `json:"user_id"`            //创建任务的用户id
 	TaskStatus       string `json:"task_status"`        //任务状态
@@ -43,29 +43,25 @@ func GetTasks(pageNum int, pageSize int, maps interface{}) (tasks []Task) {
 	return
 }
 
-//func GetTaskId()
 
 func GetTasksTotal(maps interface{}) (count int) {
 	db.Model(&Task{}).Where(maps).Count(&count)
 
 	return
 }
-
+/*
 //判断任务是否存在
-func ExistTaskById(taskId int) bool {
+func ExistTaskById(taskId string) bool {
 	var task Task
-	db.Select("taskId").Where("taskId = ?", taskId).First(&task)
-
-	if task.taskId > 0 {
-		return true
-	}
-	return false
+	
+	return db.Select("taskId").Where("taskId = ?", taskId).First(&task)
 }
+*/
 
 //提交csv任务
 func TaskSubmit(data map[string]interface{}) error {
 	task := Task{
-		//TaskId: data["taskId"].(int),
+		TaskId:	 		  data["task_id"].(string),
 		UserId:           data["user_id"].(int),
 		TaskType:         data["task_type"].(string),
 		FileName:         data["file_name"].(string),
@@ -73,9 +69,9 @@ func TaskSubmit(data map[string]interface{}) error {
 		TaskStatus:       data["task_status"].(string),
 		TaskProjectName:  data["task_project_name"].(string),
 		TaskColumnNumber: data["task_column_number"].(int),
-		Limit:            data["limit"].(int),
+		//Limit:            data["limit"].(int),
 		StartTime:        data["start_time"].(string),
-		EndTime:          data["end_time"].(string),
+		//EndTime:          data["end_time"].(string),
 		SubTaskNumbers:   data["sub_task_numbers"].(int),
 	}
 	if err := db.Create(&task).Error; err != nil {
