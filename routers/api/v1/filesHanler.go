@@ -1,5 +1,5 @@
 package v1
-
+/*
 import (
 	//"github.com/Unknwon/com"
 	"fmt"
@@ -47,3 +47,4 @@ func DownFile(c *gin.Context) {
 	c.Writer.Write([]byte(file_out))
 	
 }
+*/

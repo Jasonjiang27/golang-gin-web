@@ -8,6 +8,10 @@ var MsgFlags = map[int]string {
 	INVALID_PARAMS : "请求参数错误",
 
 	ERROR_NOT_EXIST_TASK : "任务不存在",
+
+	ERROR_UPLOAD_SAVE_CSV_FAIL:    "保存CSV失败",
+	ERROR_UPLOAD_CHECK_CSV_FAIL:   "检查CSV失败",
+	ERROR_UPLOAD_CHECK_CSV_FORMAT: "校验CSV错误，CSV格式或大小有问题",
 }
 
 //获取错误码

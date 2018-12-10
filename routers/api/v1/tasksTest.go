@@ -85,12 +85,8 @@ func TaskSubmit(c *gin.Context) {
 
 	//taskId := com.StrTo(c.Query("task_id")).MustInt()
 	user_id := com.StrTo(c.Query("user_id")).MustInt()
-	file_location := c.Query("file_location")
 	limit := com.StrTo(c.Query("limit")).MustInt()
-	start_time := c.Query("start_time")
-	end_time := c.Query("end_time")
 	task_status := c.Query("task_status")
-	sub_task_numbers := com.StrTo(c.Query("sub_task_numbers")).MustInt()
 	code := e.INVALID_PARAMS
 
 	if !valid.HasErrors() {
@@ -100,33 +96,26 @@ func TaskSubmit(c *gin.Context) {
 		//data["task_id"] = taskId
 		data_task["user_id"] = user_id
 		data_task["task_type"] = task_type
-		data_task["file_name"] = file_name
-		data_task["file_location"] = file_location
 		data_task["task_project_name"] = task_project_name
-
 		data_task["task_column_number"] = task_column_number
 		data_task["task_status"] = task_status
 		data_task["limit"] = limit
 
-		data_task["start_time"] = start_time
-		data_task["end_time"] = end_time
-		data_task["sub_task_numbers"] = sub_task_numbers
-
-		models.TaskSubmit(data_task)
+		CsvHandle(data_task)
 		//code1 = e.SUCCESS_total_task
 
-		//数据插入子任务表
-		task_text := c.Query("task_text")
-		number_id := com.StrTo(c.Query("number_id")).MustInt()
+		//获取需插入子任务的参数
+
+
 		data_sub_task := make(map[string]interface{})
 		data_sub_task["task_id"] = com.StrTo(c.Query("task_id")).MustInt() //TODO:需要关联至总任务表中的task_id
 
-		data_sub_task["task_text"] = task_text
-		data_sub_task["task_project_name"] = task_project_name
-		data_sub_task["number_id"] = number_id
-		data_sub_task["task_type"] = task_type
 
-		models.AddSubTask(data_sub_task)
+		data_sub_task["task_project_name"] = task_project_name
+
+		data_sub_task["task_type"] = task_type
+		//根据参数启动csv文件操作 
+		CsvHandle(data_sub_task)
 		//code2 = e.SUCCESS_sub_task
 		code = e.SUCCESS
 

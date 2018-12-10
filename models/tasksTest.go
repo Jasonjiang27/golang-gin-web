@@ -43,6 +43,8 @@ func GetTasks(pageNum int, pageSize int, maps interface{}) (tasks []Task) {
 	return
 }
 
+//func GetTaskId()
+
 func GetTasksTotal(maps interface{}) (count int) {
 	db.Model(&Task{}).Where(maps).Count(&count)
 
