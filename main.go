@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"golang-gin-web/models"
 	"golang-gin-web/pkg/setting"
 	"golang-gin-web/routers"
@@ -12,7 +13,7 @@ import (
 func main() {
 	setting.Setup()
 	models.Setup()
-	router := routers.InitRouter()
+
 	/*
 			endless.DefaultReadTimeOut = setting.ServerSetting.ReadTimeout
 			endless.DefaultWriteTimeOut = setting.ServerSetting.WriteTimeout
@@ -35,14 +36,22 @@ func main() {
 			log.Printf("Server err: %v", err)
 		}
 	*/
-	s := &http.Server{
-		Addr:           fmt.Sprintf(":%d", setting.ServerSetting.HttpPort),
-		Handler:        router,
-		ReadTimeout:    setting.ServerSetting.ReadTimeout,
-		WriteTimeout:   setting.ServerSetting.WriteTimeout,
-		MaxHeaderBytes: 1 << 20,
-	}
+	routersInit := routers.InitRouter()
+	readTimeout := setting.ServerSetting.ReadTimeout
+	writeTimeout := setting.ServerSetting.WriteTimeout
+	endPoint := fmt.Sprintf(":%d", setting.ServerSetting.HttpPort)
+	maxHeaderBytes := 1 << 20
 
-	s.ListenAndServe()
+	server := &http.Server{
+		Addr:           endPoint,
+		Handler:        routersInit,
+		ReadTimeout:    readTimeout,
+		WriteTimeout:   writeTimeout,
+		MaxHeaderBytes: maxHeaderBytes,
+	}
+	err := server.ListenAndServe()
+	if err != nil {
+		log.Printf("server err :%v", err)
+	}
 
 }

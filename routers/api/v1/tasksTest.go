@@ -227,10 +227,6 @@ func TaskCommonSubmit(c *gin.Context) {
 	})
 }
 
-//执行跑批测试
-func TaskTest() {
-
-}
 
 //获取任务列表
 func GetTasks(c *gin.Context) {

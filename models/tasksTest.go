@@ -38,14 +38,16 @@ func GetBrands(name string, series []string) (data map[string][]map[string]inter
 }
 
 func GetTasks(pageNum int, pageSize int, maps interface{}) (tasks []Task) {
-	db.Where(maps).Offset(pageNum).Limit(pageSize).Find(&tasks)
 
+	db.Where(maps).Offset(pageNum).Limit(pageSize).Find(&tasks)
+	
 	return
-}
+	}
+
 
 func GetTasksTotal(maps interface{}) (count int) {
-	db.Model(&Task{}).Where(maps).Count(&count)
 
+	db.Model(&Task{}).Where(maps).Count(&count)
 	return
 }
 
@@ -61,7 +63,7 @@ func ExistTaskById(taskId int) bool {
 }
 
 //提交csv任务
-func TaskSubmit(data map[string]interface{}) bool {
+func TaskSubmit(data map[string]interface{}) error {
 	task := Task{
 		//TaskId: data["taskId"].(int),
 		UserId:           data["user_id"].(int),
@@ -77,10 +79,12 @@ func TaskSubmit(data map[string]interface{}) bool {
 		SubTaskNumbers:   data["sub_task_numbers"].(int),
 	}
 
-	db.Create(&task)
-	return true
+	if err := db.Create(&task).Error; err != nil {
+		return err
 	}
 
+	return nil
+}
 
 //提交舆情任务
 func TaskCommonSubmit(data map[string]interface{}) error {
