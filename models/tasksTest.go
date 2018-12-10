@@ -61,7 +61,7 @@ func ExistTaskById(taskId int) bool {
 }
 
 //提交csv任务
-func TaskSubmit(data map[string]interface{}) error {
+func TaskSubmit(data map[string]interface{}) bool {
 	task := Task{
 		//TaskId: data["taskId"].(int),
 		UserId:           data["user_id"].(int),
@@ -76,12 +76,11 @@ func TaskSubmit(data map[string]interface{}) error {
 		EndTime:          data["end_time"].(string),
 		SubTaskNumbers:   data["sub_task_numbers"].(int),
 	}
-	if err := db.Create(&task).Error; err != nil {
-		return err
+
+	db.Create(&task)
+	return true
 	}
 
-	return nil
-}
 
 //提交舆情任务
 func TaskCommonSubmit(data map[string]interface{}) error {

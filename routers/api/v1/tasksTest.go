@@ -114,7 +114,7 @@ func TaskSubmit(c *gin.Context) {
 		models.TaskSubmit(data_task)
 		//code1 = e.SUCCESS_total_task
 
-		//数据插入子任务表
+		//获取需插入子任务的参数
 		task_text := c.Query("task_text")
 		number_id := com.StrTo(c.Query("number_id")).MustInt()
 		data_sub_task := make(map[string]interface{})
@@ -124,8 +124,8 @@ func TaskSubmit(c *gin.Context) {
 		data_sub_task["task_project_name"] = task_project_name
 		data_sub_task["number_id"] = number_id
 		data_sub_task["task_type"] = task_type
-
-		models.AddSubTask(data_sub_task)
+		//根据参数启动csv文件操作 
+		CsvHandle(data_sub_task)
 		//code2 = e.SUCCESS_sub_task
 		code = e.SUCCESS
 
