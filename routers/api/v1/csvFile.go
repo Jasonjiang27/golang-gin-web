@@ -1,8 +1,11 @@
 package v1
 
 import (
+	"fmt"
+	"golang-gin-web/models"
 	"golang-gin-web/pkg/e"
 	"golang-gin-web/pkg/upload"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -32,7 +35,7 @@ func UploadFile(c *gin.Context) {
 		savePath := upload.GetCsvPath()
 
 		src := fullPath + csvName
-		
+
 		if !upload.CheckCsvExt(csvName) || !upload.CheckCsvSize(file) {
 			code = e.ERROR_UPLOAD_CHECK_CSV_FORMAT
 		} else {
@@ -57,4 +60,24 @@ func UploadFile(c *gin.Context) {
 		"data": data,
 	})
 
+}
+
+func DownFile(c *gin.Context) {
+	task_id := c.Param("task_id")
+	data := make(map[string]interface{})
+	data["task_id"] = task_id
+
+	file_name, task_project_name := models.GetFileName(data)
+
+	content, err := ioutil.ReadAll(file_name)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "文件读取失败"})
+		return
+	}
+
+	c.Writer.WriteHeader(http.StatusOK)
+	c.Header("Content-Disposition", "attachment; filename=%s"%file_name)
+	c.Header("Content-Type", "application/text/csv")
+	c.Header("Accept-Length", fmt.Sprintf("%d", len(content)))
+	c.Writer.Write([]byte(content))
 }

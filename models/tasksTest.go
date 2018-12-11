@@ -27,6 +27,8 @@ type Task struct {
 
 }
 
+var task Task
+
 func GetDataSource(data string) (dataSource []string) {
 	//补充mongo数据库来源
 	return
@@ -42,8 +44,15 @@ func GetTasks(pageNum int, pageSize int, maps interface{}) (tasks []Task) {
 	return
 }
 
-func GetTaskType(maps interface{}) (tasks []Task){
-	db.Where(maps).Select("task_type").Scan(&tasks)
+//获取文件类型
+func GetTaskType(maps interface{}) {
+	db.Model(&Task{}).Where(maps).Select("task_type").Scan(&task)
+	return
+}
+
+//获取文件名
+func GetFileName(maps interface{}) (file_name string, task_project_name string) {
+	db.Model(&Task{}).Where(maps).Select("file_name,task_project_name").Scan(&task)
 	return
 }
 
