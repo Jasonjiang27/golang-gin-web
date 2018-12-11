@@ -1,0 +1,8 @@
+{
+    "host": "47.96.184.66",
+    "database": "crawler",
+    "port":3717,
+    "user": "ugc",
+    "password":"a1b2c3d4",
+    "collectiion": "public_praise"
+}

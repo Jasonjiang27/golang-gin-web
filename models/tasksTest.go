@@ -38,8 +38,12 @@ func GetBrands(name string, series []string) (data map[string][]map[string]inter
 }
 
 func GetTasks(pageNum int, pageSize int, maps interface{}) (tasks []Task) {
-	db.Where(maps).Offset(pageNum).Limit(pageSize).Find(&tasks)
+	db.Model(&Task{}).Where(maps).Select("task_id,user_id,task_project_name,start_time,end_time,file_name,task_status").Offset(pageNum).Limit(pageSize).Scan(&tasks)
+	return
+}
 
+func GetTaskType(maps interface{}) (tasks []Task){
+	db.Where(maps).Select("task_type").Scan(&tasks)
 	return
 }
 
@@ -103,7 +107,7 @@ func TaskCommonSubmit(data map[string]interface{}) error {
 	return nil
 }
 
-func DeleteTask(task_id int) bool {
+func DeleteTask(task_id string) bool {
 	db.Where("task_id = ?", task_id).Delete(Task{})
 
 	return true

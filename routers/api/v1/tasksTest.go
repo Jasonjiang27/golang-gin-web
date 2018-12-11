@@ -15,7 +15,7 @@ import (
 
 	"golang-gin-web/models"
 	"golang-gin-web/pkg/e"
-	"golang-gin-web/pkg/setting"
+	//"golang-gin-web/pkg/setting"
 	"golang-gin-web/pkg/util"
 	//"golang-gin-web/pkg/mongodb"
 )
@@ -32,16 +32,16 @@ func GetBrands(c *gin.Context) {
 
 //查看任务进度
 func TaskProcess(c *gin.Context) {
-	task_id := com.StrTo(c.Query("task_id")).MustInt()
+	task_id := c.Param("task_id")
 	//task_uid := c.Query("task_uid")
-
+	log.Println(task_id)
 	code := e.INVALID_PARAMS
 	data1 := make(map[string]interface{})
 	data2 := make(map[string]interface{})
 
 	data1["task_id"] = task_id
 	data2["task_id"] = task_id
-	data2["status"] = "成功"
+	data2["status"] = "success"
 
 	sub_tasks_total := models.SubTaskCount(data1)          //子任务总数
 	sub_tasks_done_total := models.SubTaskDoneCount(data2) //子任务完成数
@@ -56,7 +56,7 @@ func TaskProcess(c *gin.Context) {
 	msg["process"] = s
 
 	c.JSON(http.StatusOK, gin.H{
-		"code": code,
+		"errorcode": code,
 		"msg":  msg,
 	})
 
@@ -109,7 +109,7 @@ func TaskSubmit(c *gin.Context) {
 		//根据参数启动csv文件操作
 		CsvHandle(data_task)
 		//code2 = e.SUCCESS_sub_task
-		code = e.SUCCESS
+		code = e.SUCCESS_ADD
 
 	} else {
 		for _, err := range valid.Errors {
@@ -118,10 +118,9 @@ func TaskSubmit(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"code1": code,
-		"code2": code,
+		"error": code,
 		"msg":   e.GetMsg(code),
-		"data":  make(map[string]interface{}),
+		//"data":  make(map[string]interface{}),
 	})
 
 }
@@ -142,7 +141,7 @@ func TaskCommonSubmit(c *gin.Context) {
 
 	valid := validation.Validation{}
 	valid.Required(task_type, "task_type").Message("任务类型不能为空")
-	valid.Required(data_source, "data_source").Message("护具来源不能为空")
+	valid.Required(data_source, "data_source").Message("数据来源不能为空")
 	valid.Required(brand, "brand").Message("车品牌不能为空")
 	valid.Required(series, "series").Message("车系不能为空")
 	valid.Required(task_project_name, "task_project_name").Message("分类树名不能为空")
@@ -177,89 +176,100 @@ func TaskCommonSubmit(c *gin.Context) {
 
 		//数据插入子任务表
 		data_mongo := make(map[string]interface{})
-		data_mongo["k_source"] = c.Query("k_source")
-		data_mongo["k_c_brand"] = c.Query("k_c_brand")
-		data_mongo["k_c_set"] = c.Query("k_c_set")
+		data_mongo["k_source"] = data_source
+		data_mongo["k_c_brand"] = brand
+		data_mongo["k_c_set"] = series
 
 		data_task["sub_task_numbers"] = models.CountData(data_mongo)
+		log.Println(data_source)
+		log.Println(brand)
+		log.Println(series)
+		log.Println(data_task["sub_task_numbers"])
 		//插入数据至总任务表
 		models.TaskCommonSubmit(data_task)
-
-		task_texts := models.FindData(data_mongo) //获取mongo表中的所有文本内容数据
-		for _, task_text := range task_texts {
-			data_sub_task := make(map[string]interface{})
-			data_sub_task["task_id"] = data_task["task_id"] //TODO:需要关联至总任务表中的task_id
-
-			data_sub_task["task_text"] = task_text.Content
-			data_sub_task["task_project_name"] = task_project_name
-			data_sub_task["task_type"] = task_type
-
-			models.AddSubTask(data_sub_task)
+		
+		task_texts, err := models.FindData(data_mongo) //获取mongo表中的所有文本内容数据
+		if err != nil {
+			panic(err)
+		} else {
+			for i, task_text := range task_texts {
+				data_sub_task := make(map[string]interface{})
+				data_sub_task["task_id"] = data_task["task_id"] //TODO:需要关联至总任务表中的task_id
+				data_sub_task["task_text"] = task_text.Content
+				data_sub_task["task_project_name"] = task_project_name
+				data_sub_task["task_type"] = task_type
+				data_sub_task["number_id"] = i
+				log.Println(data_sub_task["task_id"])
+				log.Println(data_sub_task["task_text"])
+				models.AddSubTask(data_sub_task)
+			}
+		
 			//code2 = e.SUCCESS_sub_task
 			code = e.SUCCESS
 		}
-
+		
+		code = e.SUCCESS_ADD
 	} else {
 		for _, err := range valid.Errors {
 			log.Println(err.Key, err.Message)
 		}
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"code": code,
+		"errorcode": code,
 		"msg":  e.GetMsg(code),
-		"data": make(map[string]interface{}),
+		//"data": make(map[string]interface{}),
 	})
 }
 
 //获取任务列表
 func GetTasks(c *gin.Context) {
 	maps := make(map[string]interface{})
-	data := make(map[string]interface{})
-	valid := validation.Validation{} //数据校验功能
+	
+	msg := make(map[string]interface{})
+	//valid := validation.Validation{} //数据校验功能
 
-	var taskId int = -1
-	if arg := c.Query("task_id"); arg != "" {
-		taskId = com.StrTo(arg).MustInt()
-		maps["task_id"] = taskId
+	limit := com.StrTo(c.Param("limit")).MustInt()
+	user_id := com.StrTo(c.Param("user_id")).MustInt()
+	task_type := c.Param("task_type")
+	offset := com.StrTo(c.Param("offset")).MustInt()
 
-		valid.Min(taskId, 1, "task_id").Message("任务id必须大于0")
-	}
+	
+	maps["user_id"] = user_id
 
-	var userId int = -1
-	if arg := c.Query("user_id"); arg != "" {
-		userId = com.StrTo(arg).MustInt()
-		maps["user_id"] = userId
+	// if !valid.HasErrors() {
 
-		valid.Min(userId, 1, "user_id").Message("用户id必须大于0")
-	}
+	// 	data["list"] = models.GetTasks(util.GetPage(c), setting.PageSize, maps)
+	// 	data["total"] = models.GetTasksTotal(maps)
 
-	if !valid.HasErrors() {
+	// } else {
+	// 	for _, err := range valid.Errors {
+	// 		log.Fatal(err.Key, err.Message)
 
-		data["list"] = models.GetTasks(util.GetPage(c), setting.PageSize, maps)
-		data["total"] = models.GetTasksTotal(maps)
+	// 	}
+	// }
+	msg["total"] = models.GetTasksTotal(maps)
 
-	} else {
-		for _, err := range valid.Errors {
-			log.Fatal(err.Key, err.Message)
+	msg["limit"] = limit
+	msg["offset"] = offset
+	msg["user_id"] = user_id
+	msg["status"] = e.SUCCESS
+	msg["task_type"] = task_type
+	msg["tasks"] = models.GetTasks(offset, limit, maps)
 
-		}
-	}
 	code := e.SUCCESS
 	c.JSON(http.StatusOK, gin.H{
-		"code":     code,
-		"msg":      e.GetMsg(code),
-		"msg_test": "cool",
-		"data":     data,
+		"errorcode":     code,
+		"msg":      msg,
 	})
 }
 
 //跑批任务删除
 func DeleteTask(c *gin.Context) {
 
-	task_id := com.StrTo(c.Param("task_id")).MustInt()
+	task_id := c.Param("task_id")
 
 	valid := validation.Validation{}
-	valid.Min(task_id, 1, "task_id").Message("任务id必须大于0")
+	valid.Required(task_id,"task_id").Message("任务不能为空")
 
 	data := make(map[string]interface{})
 	code := e.INVALID_PARAMS
@@ -274,9 +284,9 @@ func DeleteTask(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"code": code,
+		"errorcode": code,
 		"msg":  e.GetMsg(code),
-		"data": data,
+		//"data": data,
 	})
 
 }

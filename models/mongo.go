@@ -1,39 +1,74 @@
 package models
 
 import (
+	//"github.com/astaxie/beego/config"
 	//"fmt"
-	//"time"
+	"time"
+	"log"
+	//"github.com/astaxie/beego"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
-type CommonData struct {
-	Source  string `bson:"source"` //
-	Brand   string `bson:"brand"`
-	Series  string `bson:"series"`
-	Content string `bson:"content"`
-}
-
-const (
-	MongoDBHosts = "47.96.184.66:3717"
-	AuthDatabase = "crawler"
-	AuthUserName = "ugc"
-	AuthPassword = "a1b2c3d4"
-)
-const URL string = "47.96.184.66:3717"
-
-var c *mgo.Collection
 var session *mgo.Session
 
+type CommonData struct {
+	Source  string `bson:"k_source"` //
+	Brand   string `bson:"k_c_brand"`
+	Series  string `bson:"k_c_set"`
+	Content string `bson:"k_content"`
+}
+
+const URL string = "mongodb://ugc:a1b2c3d4@47.96.184.66:3717/crawler"
+
+var c *mgo.Collection
+var database *mgo.Database
+
 func init() {
-	session, _ = mgo.Dial(URL)
-	defer session.Close()
+	
+	dialInfo := &mgo.DialInfo{
+		Addrs:		[]string{"47.96.184.66:3717"},
+		Direct:		false,
+		Database:	"crawler",
+		Username:	"ugc",
+		Password:	"a1b2c3d4",
+		Timeout:	time.Second * 40,
+		PoolLimit:	4096,
+
+	}
+	session, err := mgo.DialWithInfo(dialInfo)
+	database = session.DB("crawler")
+	
+	//session, err := mgo.Dial(URL)
+
+	if err != nil {
+		log.Println(err.Error())
+	}
+	
+
+	//session.SetMode(mgo.Monotonic, true)
+	//使用指定的数据库
+	//database = session.DB(config.Database)
+}
+
+func GetDataBase() *mgo.Database {
+    return database
+}
+
+func GetErrNotFound() error {
+    return mgo.ErrNotFound
+}
+
+/*
+func init() {
+	session, _ := mgo.DialWithTimeout(URL, 10 * time.Second)
+	
 	//切换到数据库
 	db := session.DB("crawler")
 	//切换到collection
 	c = db.C("public_praise")
 }
-
+*/
 /*
 func getSession() *mgo.Session {
 	if mgoSession == nil {
@@ -56,16 +91,35 @@ func witchCollection(collection string, s func(*mgo.Collection) error) error {
 }
 */
 
-func FindData(data map[string]interface{}) []CommonData {
+func FindData(data map[string]interface{}) ([]CommonData, error) {
 	var commonData []CommonData
-
-	c.Find(bson.M{"k_source": data["k_source"], "k_c_set": data["k_c_set"], "k_c_brand": data["k_c_brand"]}).One(&commonData)
-	value := commonData
-	return value
+	con := GetDataBase().C("public_praise")
+	k_source := data["k_source"].(string)
+	k_c_set := data["k_c_set"].(string)
+	k_c_brand := data["k_c_brand"].(string)
+	if err := con.Find(bson.M{"k_source": k_source, "k_c_set": k_c_set, "k_c_brand":  k_c_brand}).All(&commonData); err != nil {
+		if err.Error() != GetErrNotFound().Error() {
+            return commonData, err
+        }
+	}
+	
+	
+	return commonData, nil
 }
+
 
 func CountData(data map[string]interface{}) (count int) {
-
-	c.Find(bson.M{"k_source": data["k_source"], "k_c_set": data["k_c_set"], "k_c_brand": data["k_c_brand"]}).Count()
+	con := GetDataBase().C("public_praise")
+	k_source := data["k_source"].(string)
+	k_c_set := data["k_c_set"].(string)
+	k_c_brand := data["k_c_brand"].(string)
+	count, err := con.Find(bson.M{"k_source": k_source, "k_c_set": k_c_set, "k_c_brand": k_c_brand}).Count()
+	if err != nil {
+		panic(err)
+	}
 	return
 }
+
+func DbClose() {
+	defer session.Close()
+ }

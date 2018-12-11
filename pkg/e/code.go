@@ -2,6 +2,7 @@ package e
 
 const (
 	SUCCESS = 200
+	SUCCESS_ADD = 205
 	SUCCESS_total_task = 201
 	SUCCESS_sub_task = 202
 	SUCCESS3 = 203

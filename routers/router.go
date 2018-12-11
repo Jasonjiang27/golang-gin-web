@@ -40,7 +40,7 @@ func InitRouter() *gin.Engine {
 		apiv1.POST("/taskCommonSubmit", v1.TaskCommonSubmit)
 
 		//获取任务列表
-		apiv1.GET("/getTasks", v1.GetTasks)
+		apiv1.GET("/getTasks/:limit/:user_id/:task_type/:offset", v1.GetTasks)
 
 		//删除任务
 		apiv1.GET("/deleteTask/:task_id", v1.DeleteTask)

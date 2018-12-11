@@ -12,11 +12,11 @@ type SubTasks struct {
 	TaskProjectName string `json:"task_project_name"`     //任务分类树名
 	NumberId        int    `json:"number_id"`             //任务子csv文件的第几行（专为csv类型）
 	TaskType        string `json:"task_type"`             //任务类型
-	Task            Task   `json:"task"`                  //任务结构体
 }
 
 //子任务结果
 type TaskResult struct {
+	TaskId		string	`json:"task_id"`	//任务id
 	TaskUid     int    `json:"task_uid"`     //子任务id
 	NumberId    int    `json:"number_id"`    //csv文件中的行数
 	Result      string `json:"result"`       //分词结果

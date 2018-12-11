@@ -16,12 +16,12 @@ CREATE TABLE IF NOT EXISTS tea_userstatus (
 
 //子任务表
 CREATE TABLE IF NOT EXISTS tea_sub_tasks (
-    task_id VARCHAR(100) comment '当前任务id',
-    task_uid INT PRIMARY KEY AUTO_INCREMENT comment '子任务的唯一id',
+    task_id VARCHAR(100) NOT NULL comment '当前任务id',
+    task_uid INT NOT NULL PRIMARY KEY AUTO_INCREMENT comment '子任务的唯一id',
     task_text text comment '任务的文本数据',
-    task_project_name varchar(50) comment '需要跑批的模型',
-    number_id INT comment '序列号（csv文件的行数）',
-    `task_type` VARCHAR(20) comment '是csv还是直接从数据库导出'
+    task_project_name text NOT NULL comment '需要跑批的模型',
+    number_id INT NOT NULL comment '序列号（csv文件的行数）',
+    `task_type` VARCHAR(20) NOT NULL comment '是csv还是直接从数据库导出'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='子任务表';
 
 //总任务表
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS tea_task (
     task_type VARCHAR(20)  NOT NULL comment '是csv还是直接从数据库导出的',
     `file_name` VARCHAR(100) comment '文件名',
     file_location VARCHAR(100) comment '文件位置',
-    task_project_name VARCHAR(100) NOT NULL comment '分类树名',
+    task_project_name text NOT NULL comment '分类树名',
     task_column_number INT comment '分类数据列名',
     `data_source` VARCHAR(100) comment '数据来源(如果是来源mongo的话)',
     `limit` INT comment '条数限制',
@@ -52,12 +52,12 @@ CREATE TABLE IF NOT EXISTS tea_taskInfo(
 
 //任务结果表
 CREATE TABLE IF NOT EXISTS tea_task_result(
-    task_id INT comment '子任务对应的任务id',
-    task_uid INT PRIMARY KEY comment '子任务id',
+    task_id VARCHAR(50) NOT NULL comment '子任务对应的任务id',
+    task_uid INT NOT NULL PRIMARY KEY comment '子任务id',
     number_id int comment '序列号(csv行数)',
     result text comment '分词结果',
-    task_text text comment '任务的文本数据',
-    `status` VARCHAR(100) comment '是否分词成功',
+    task_text text NOT NULL comment '任务的文本数据',
+    `status` VARCHAR(100) NOT NULL comment '是否分词成功',
     answer_judge VARCHAR(100) comment '人工判断分词结果是否正确'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='任务结果表';
 
