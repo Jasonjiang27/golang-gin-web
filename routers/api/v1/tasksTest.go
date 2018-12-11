@@ -181,10 +181,10 @@ func TaskCommonSubmit(c *gin.Context) {
 		data_mongo["k_c_set"] = series
 
 		data_task["sub_task_numbers"] = models.CountData(data_mongo)
-		log.Println(data_source)
-		log.Println(brand)
-		log.Println(series)
-		log.Println(data_task["sub_task_numbers"])
+		// log.Println(data_source)
+		// log.Println(brand)
+		// log.Println(series)
+		// log.Println(data_task["sub_task_numbers"])
 		//插入数据至总任务表
 		models.TaskCommonSubmit(data_task)
 		
@@ -199,8 +199,8 @@ func TaskCommonSubmit(c *gin.Context) {
 				data_sub_task["task_project_name"] = task_project_name
 				data_sub_task["task_type"] = task_type
 				data_sub_task["number_id"] = i
-				log.Println(data_sub_task["task_id"])
-				log.Println(data_sub_task["task_text"])
+				// log.Println(data_sub_task["task_id"])
+				// log.Println(data_sub_task["task_text"])
 				models.AddSubTask(data_sub_task)
 			}
 		

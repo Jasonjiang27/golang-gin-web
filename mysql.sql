@@ -43,11 +43,11 @@ CREATE TABLE IF NOT EXISTS tea_task (
 
 //任务相关信息表
 CREATE TABLE IF NOT EXISTS tea_taskInfo(
-    taskId INT PRIMARY KEY comment '任务id',
-    taskUserId INT comment '当前任务所有者',
-    taskUserPower INT comment '当前任务所有者权限',
-    taskStatus VARCHAR(50) comment '任务状态',
-    taskPriority INT comment '任务优先级',
+    task_id INT PRIMARY KEY comment '任务id',
+    task_user_id INT comment '当前任务所有者',
+    task_user_power INT comment '当前任务所有者权限',
+    task_status VARCHAR(50) comment '任务状态',
+    task_priority INT comment '任务优先级',
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='任务相关信息表';
 
 //任务结果表

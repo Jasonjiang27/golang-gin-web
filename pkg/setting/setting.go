@@ -71,7 +71,7 @@ func LoadApp() {
 	PageSize = sec.Key("PAGE_SIZE").MustInt(10)
 	RuntimeRootPath = sec.Key("RuntimeRootPath").MustString("runtime/")
 	CsvPrefixUrl = sec.Key("CsvPrefixUrl").MustString("http://127.0.0.1:8000")
-	CsvSavePath = sec.Key("CsvSavePath").MustString("files/input/")
+	CsvSavePath = sec.Key("CsvSavePath").MustString("files/input/") + "/"
 	//CsvResultPath = sec.Key("CsvResultPath").MustString("files/output/")
 	CsvMaxSize = sec.Key("CsvMaxSize").MustInt(1024) * 1024 * 1024
 	CsvAllowExts = append(CsvAllowExts, sec.Key("CsvAllowExts").MustString(".csv"))
