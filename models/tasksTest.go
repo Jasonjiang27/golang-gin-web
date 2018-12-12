@@ -2,7 +2,6 @@ package models
 
 import (
 	"time"
-
 	"github.com/jinzhu/gorm"
 )
 
@@ -24,23 +23,29 @@ type Task struct {
 	StartTime      string `json:"start_time"`       //开始时间
 	EndTime        string `json:"end_time"`         //结束时间
 	SubTaskNumbers int    `json:"sub_task_numbers"` //子任务数
-
+	TaskProcess		float64 `json:"task_process"`	//任务进度
 }
 
+type Results struct{
+	TaskId string `json:"task_id" gorm:"index"` //任务id
+
+	UserId           int    `json:"user_id"`            //创建任务的用户id
+	TaskStatus       string `json:"task_status"`        //任务状态
+	TaskType         string `json:"task_type"`          //来源是csv还是数据库
+	FileName         string `json:"file_name"`          //对于csv文件名
+	TaskProjectName  string `json:"task_project_name"`  //分类树名
+	
+	StartTime      string `json:"start_time"`       //开始时间
+	EndTime        string `json:"end_time"`         //结束时间
+	TaskProcess		float64 `json:"task_process"`	//任务进度
+}
 var task Task
+var results Results
 
-func GetDataSource(data string) (dataSource []string) {
-	//补充mongo数据库来源
-	return
-}
 
-func GetBrands(name string, series []string) (data map[string][]map[string]interface{}) {
-	//补充mongo查询的数据
-	return
-}
+func GetTasks(pageNum int, pageSize int, maps interface{}) (results []Results) {
 
-func GetTasks(pageNum int, pageSize int, maps interface{}) (tasks []Task) {
-	db.Model(&Task{}).Where(maps).Select("task_id,user_id,task_project_name,start_time,end_time,file_name,task_status").Offset(pageNum).Limit(pageSize).Scan(&tasks)
+	db.Model(&Task{}).Where(maps).Select("task_id,user_id,task_project_name,start_time,end_time,file_name,task_status").Offset(pageNum).Limit(pageSize).Scan(&results)
 	return
 }
 
@@ -121,7 +126,7 @@ func DeleteTask(task_id string) bool {
 
 	return true
 }
-
+ 
 func (task *Task) BeforeTask(scope *gorm.Scope) error {
 	scope.SetColumn("start_time", time.Now().Unix())
 

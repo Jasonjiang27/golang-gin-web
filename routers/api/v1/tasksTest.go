@@ -6,7 +6,8 @@ import (
 	//"math"
 	"log"
 	"net/http"
-
+	"strconv"
+	//"reflect"
 	//"strings"
 
 	"github.com/Unknwon/com"
@@ -22,17 +23,86 @@ import (
 
 //获取数据来源
 func GetDataSource(c *gin.Context) {
-
+	var k_source []string
+	var err error
+	
+	k_source, err = models.GetDataSource()
+	
+	if err != nil {
+		panic(err)
+	} else {
+		msg := make(map[string]interface{})
+		msg["status"] = "success"
+		msg["data"] = k_source
+		code := 0
+		c.JSON(http.StatusOK, gin.H{
+			"errorcode": code,
+			"msg":  msg,
+		})
+	}
+	
 }
 
+
+
+type CarInfo struct{
+  	Name	string
+  	Series	[]string
+}
+var Cars []CarInfo
 //获取品牌
 func GetBrands(c *gin.Context) {
+	map1 := make(map[string]interface{})
+	map2 := make(map[string]interface{})
+	k_source := c.Query("k_source")
+	map1["k_source"] = k_source
+	map2["k_source"] = k_source
+	log.Println(k_source)
+
+	names,err := models.GetBrands(map1)
+	if err != nil {
+		panic(err)
+	}
+	
+	for _,name := range names {
+		log.Println(name)
+		map2["k_c_brand"] = name
+		var series []string
+		series,err := models.GetSeries(map2)
+		if err != nil {
+			panic(err)
+		}
+
+		var carinfo CarInfo
+		carinfo.Name = name
+		carinfo.Series = series
+		Cars = append(Cars, carinfo)
+	}
+	msg := make(map[string]interface{})
+	code := 0
+
+	var data_struct map[string][]CarInfo
+	
+	data_struct["brands"] = Cars
+	data := make(map[string][]map[string]interface{})
+	ss := len(data_struct["brand"])
+	for i := 0; i< ss; i++ {
+		data["brands"][i]["name"] = data_struct["brands"][i].Name
+		data["brands"][i]["series"] = data_struct["brands"][i].Series
+	}
+
+	msg["status"] = "success"
+	msg["data"] = data
+	c.JSON(http.StatusOK, gin.H{
+		"errorcode": code,
+		"msg":  msg,
+	})
 
 }
 
 //查看任务进度
 func TaskProcess(c *gin.Context) {
-	task_id := c.Param("task_id")
+	task_id := c.Query("task_id")
 	//task_uid := c.Query("task_uid")
 	log.Println(task_id)
 	code := e.INVALID_PARAMS
@@ -50,7 +120,7 @@ func TaskProcess(c *gin.Context) {
 
 	s := fmt.Sprintf("%.2f", task_process) //保留2位小数
 
-	code = e.SUCCESS
+	code = 0
 	msg := make(map[string]interface{})
 	msg["task_id"] = task_id
 	msg["process"] = s
@@ -109,7 +179,7 @@ func TaskSubmit(c *gin.Context) {
 		//根据参数启动csv文件操作
 		CsvHandle(data_task)
 		//code2 = e.SUCCESS_sub_task
-		code = e.SUCCESS_ADD
+		code = 0
 
 	} else {
 		for _, err := range valid.Errors {
@@ -119,7 +189,7 @@ func TaskSubmit(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"error": code,
-		"msg":   e.GetMsg(code),
+		"msg":   "提交成功",
 		//"data":  make(map[string]interface{}),
 	})
 
@@ -208,7 +278,7 @@ func TaskCommonSubmit(c *gin.Context) {
 			code = e.SUCCESS
 		}
 		
-		code = e.SUCCESS_ADD
+		code = 0
 	} else {
 		for _, err := range valid.Errors {
 			log.Println(err.Key, err.Message)
@@ -216,24 +286,46 @@ func TaskCommonSubmit(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"errorcode": code,
-		"msg":  e.GetMsg(code),
+		"msg":  "提交成功",
 		//"data": make(map[string]interface{}),
 	})
 }
+
+type TasksList struct{
+	Total		int
+	Limit		int
+	Offset		int
+	TaskType	string
+	UserId		int
+	Status		string
+	Tasks		[]models.Results
+}
+
+
+//var TaskShowEvery map[string]interface{}
+
+//type TaskShowEvery map[string]interface{}
+	// task_id			string
+	// user_id			int
+	// task_project_name	string
+	// start_time		string
+	// end_time		string
+	// filename       	string
+	// task_status		string
+	// task_process	float64
+
 
 //获取任务列表
 func GetTasks(c *gin.Context) {
 	maps := make(map[string]interface{})
 	
-	msg := make(map[string]interface{})
+	var msg TasksList
 	//valid := validation.Validation{} //数据校验功能
+	limit := com.StrTo(c.Query("limit")).MustInt()
+	user_id := com.StrTo(c.Query("userId")).MustInt()
+	task_type := c.Query("task_type")
+	offset := com.StrTo(c.Query("offset")).MustInt()
 
-	limit := com.StrTo(c.Param("limit")).MustInt()
-	user_id := com.StrTo(c.Param("user_id")).MustInt()
-	task_type := c.Param("task_type")
-	offset := com.StrTo(c.Param("offset")).MustInt()
-
-	
 	maps["user_id"] = user_id
 
 	// if !valid.HasErrors() {
@@ -247,26 +339,53 @@ func GetTasks(c *gin.Context) {
 
 	// 	}
 	// }
-	msg["total"] = models.GetTasksTotal(maps)
+	msg.Total = models.GetTasksTotal(maps)
 
-	msg["limit"] = limit
-	msg["offset"] = offset
-	msg["user_id"] = user_id
-	msg["status"] = e.SUCCESS
-	msg["task_type"] = task_type
-	msg["tasks"] = models.GetTasks(offset, limit, maps)
+	msg.Limit = limit
+	msg.Offset = offset
+	msg.UserId = user_id
+	msg.Status = "success"
+	msg.TaskType = task_type
+	//log.Println(msg.limit, msg.task_type)
+	msg.Tasks = models.GetTasks(offset, limit, maps)
 
-	code := e.SUCCESS
+	task_num := len(msg.Tasks)
+	for i:=0; i< task_num; i++ {
+		task_id := msg.Tasks[i].TaskId
+		data1 := make(map[string]interface{})
+		data2 := make(map[string]interface{})
+
+		data1["task_id"] = task_id
+		data2["task_id"] = task_id
+		data2["status"] = "success"
+		sub_tasks_total := models.SubTaskCount(data1)          //子任务总数
+		sub_tasks_done_total := models.SubTaskDoneCount(data2) //子任务完成数
+		log.Printf("总任务数：%d,子任务完成数：%d", sub_tasks_total, sub_tasks_done_total)
+		task_process := float64(sub_tasks_done_total) / float64(sub_tasks_total) //进度
+		task_process, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", task_process), 64)		//显示两位小数
+		//fmt.Println(reflect.TypeOf(task_process), reflect.ValueOf(task_process).Kind())
+		msg.Tasks[i].TaskProcess = task_process
+	}
+	data := make(map[string]interface{})
+	data["total"] = models.GetTasksTotal(maps)
+	data["limit"] = limit
+	data["offset"] = offset
+	data["task_type"] = task_type
+	data["user_id"] = user_id
+	data["status"] = msg.Status
+	data["tasks"] = msg.Tasks
+	//log.Println(data["status"],data["tasks"])
+	code := 0
 	c.JSON(http.StatusOK, gin.H{
 		"errorcode":     code,
-		"msg":      msg,
+		"msg":      data,
 	})
 }
 
 //跑批任务删除
 func DeleteTask(c *gin.Context) {
 
-	task_id := c.Param("task_id")
+	task_id := c.Query("task_id")
 
 	valid := validation.Validation{}
 	valid.Required(task_id,"task_id").Message("任务不能为空")
@@ -276,7 +395,7 @@ func DeleteTask(c *gin.Context) {
 	if !valid.HasErrors() {
 
 		models.DeleteTask(task_id)
-		code = e.SUCCESS
+		code = 0
 		data["删除的任务"] = task_id
 	} else {
 		for _, err := range valid.Errors {
@@ -285,7 +404,7 @@ func DeleteTask(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"errorcode": code,
-		"msg":  e.GetMsg(code),
+		"msg":  "succes",
 		//"data": data,
 	})
 

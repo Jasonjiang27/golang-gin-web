@@ -1,7 +1,7 @@
 //用户表
 CREATE TABLE IF NOT EXISTS `tea_user` (
-    `userId` int unsiged PRIMARY KEY AUTO_INCREMENT comment "用户id",
-    `userName` VARCHAR(20) NOT NULL comment '用户名',
+    `user_id` int unsiged PRIMARY KEY AUTO_INCREMENT comment "用户id",
+    `user_name` VARCHAR(20) NOT NULL comment '用户名',
     `password` VARCHAR(100), comment '用户密码'
     `power` int comment ('用户权限'),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户表';

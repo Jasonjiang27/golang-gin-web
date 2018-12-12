@@ -1,11 +1,11 @@
 package v1
 
 import (
-	"fmt"
-	"golang-gin-web/models"
+	//"fmt"
+	//"golang-gin-web/models"
 	"golang-gin-web/pkg/e"
 	"golang-gin-web/pkg/upload"
-	"io/ioutil"
+	//"io/ioutil"
 	"log"
 	"net/http"
 
@@ -61,7 +61,7 @@ func UploadFile(c *gin.Context) {
 	})
 
 }
-
+/*
 func DownFile(c *gin.Context) {
 	task_id := c.Param("task_id")
 	data := make(map[string]interface{})
@@ -81,3 +81,4 @@ func DownFile(c *gin.Context) {
 	c.Header("Accept-Length", fmt.Sprintf("%d", len(content)))
 	c.Writer.Write([]byte(content))
 }
+*/

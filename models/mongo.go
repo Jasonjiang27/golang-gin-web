@@ -59,6 +59,42 @@ func GetErrNotFound() error {
     return mgo.ErrNotFound
 }
 
+
+
+func GetDataSource()([]string, error) {
+	var source []string
+	con := GetDataBase().C("public_praise")
+	if err := con.Find(bson.M{}).Distinct("k_source", &source); err != nil {
+		if err.Error() != GetErrNotFound().Error() {
+            return source, err
+        }
+	}
+	return source, nil
+}
+
+func GetBrands(maps map[string]interface{}) ([]string, error) {
+	//补充mongo查询的数据
+	var brand []string
+	con := GetDataBase().C("public_praise")
+	if err := con.Find(bson.M{"k_source":maps["k_source"]}).Distinct("k_c_brand", &brand); err != nil {
+		if err.Error() != GetErrNotFound().Error() {
+            return brand, err
+        }
+	}
+	return brand, nil
+}
+
+func GetSeries(maps map[string]interface{}) ([]string, error){
+	var series []string
+	con := GetDataBase().C("public_praise")
+	if err := con.Find(bson.M{"k_source":maps["k_source"],"k_c_brand":maps["k_c_brand"]}).Distinct("k_c_set", &series); err != nil {
+		if err.Error() != GetErrNotFound().Error() {
+            return series, err
+        }
+	}
+	return series, nil
+}
+
 /*
 func init() {
 	session, _ := mgo.DialWithTimeout(URL, 10 * time.Second)
