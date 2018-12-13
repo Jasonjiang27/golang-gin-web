@@ -1,8 +1,10 @@
 package v1
 
 import (
+	"io"
+	"os"
 	//"fmt"
-	//"golang-gin-web/models"
+	"golang-gin-web/models"
 	"golang-gin-web/pkg/e"
 	"golang-gin-web/pkg/upload"
 	//"io/ioutil"
@@ -61,24 +63,23 @@ func UploadFile(c *gin.Context) {
 	})
 
 }
-/*
+
 func DownFile(c *gin.Context) {
-	task_id := c.Param("task_id")
+	task_id := c.Query("task_id")
 	data := make(map[string]interface{})
 	data["task_id"] = task_id
 
 	file_name, task_project_name := models.GetFileName(data)
 
-	content, err := ioutil.ReadAll(file_name)
+	file_out_name := task_project_name + "_" + file_name
+	file_path := "http://127.0.0.1:8000/runtime/files/output" + "/" + file_out_name
+	res ,err := http.Get(file_path)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": "文件读取失败"})
-		return
+		panic(err)
 	}
-
-	c.Writer.WriteHeader(http.StatusOK)
-	c.Header("Content-Disposition", "attachment; filename=%s"%file_name)
-	c.Header("Content-Type", "application/text/csv")
-	c.Header("Accept-Length", fmt.Sprintf("%d", len(content)))
-	c.Writer.Write([]byte(content))
-}
-*/
+	f, err := os.Create(file_out_name)
+	if err != nil{
+		panic(err)
+	}
+	io.Copy(f, res.Body)
+}	

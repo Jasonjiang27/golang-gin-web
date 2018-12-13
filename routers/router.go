@@ -2,9 +2,9 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
-	"strings"
-	"fmt"
-	"net/http"
+	//"strings"
+	//"fmt"
+	//"net/http"
 	"golang-gin-web/pkg/setting"
 
 	"golang-gin-web/routers/api/v1"
@@ -15,7 +15,7 @@ func InitRouter() *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-	r.Use(Cors())
+	//r.Use(Cors())
 	gin.SetMode(setting.RunMode)
 
 	apiv1 := r.Group("/api/v1")
@@ -30,7 +30,7 @@ func InitRouter() *gin.Engine {
 		apiv1.GET("/getBrands", v1.GetBrands)
 
 		//跑批结果文件下载
-		//apiv1.GET("downFile/:task_id", v1.DownFile)
+		apiv1.GET("/downFile", v1.DownFile)
 
 		//查看任务进度
 		apiv1.GET("/taskProcess", v1.TaskProcess)
@@ -59,7 +59,7 @@ func InitRouter() *gin.Engine {
 
 	return r
 }
-
+/*
 //添加跨域
 func Cors() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -96,3 +96,4 @@ func Cors() gin.HandlerFunc {
 		c.Next()		//	处理请求
 	}
 }
+*/

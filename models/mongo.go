@@ -60,7 +60,7 @@ func GetErrNotFound() error {
 }
 
 
-
+/*
 func GetDataSource()([]string, error) {
 	var source []string
 	con := GetDataBase().C("public_praise")
@@ -71,12 +71,19 @@ func GetDataSource()([]string, error) {
 	}
 	return source, nil
 }
+*/
+//mongo表中查询较慢，直接写死
+func GetDataSource()([]string,error) {
+	var err error
+	source := []string{"pcauto", "autohome", "bitauto" ,"xcar", "sina", "12365auto", "qiche365"}
+	return source, err
+}
 
 func GetBrands(maps map[string]interface{}) ([]string, error) {
 	//补充mongo查询的数据
 	var brand []string
-	con := GetDataBase().C("public_praise")
-	if err := con.Find(bson.M{"k_source":maps["k_source"]}).Distinct("k_c_brand", &brand); err != nil {
+	con := GetDataBase().C("car_brand")
+	if err := con.Find(bson.M{"source":maps["k_source"]}).Distinct("name", &brand); err != nil {
 		if err.Error() != GetErrNotFound().Error() {
             return brand, err
         }
@@ -86,8 +93,8 @@ func GetBrands(maps map[string]interface{}) ([]string, error) {
 
 func GetSeries(maps map[string]interface{}) ([]string, error){
 	var series []string
-	con := GetDataBase().C("public_praise")
-	if err := con.Find(bson.M{"k_source":maps["k_source"],"k_c_brand":maps["k_c_brand"]}).Distinct("k_c_set", &series); err != nil {
+	con := GetDataBase().C("car_series")
+	if err := con.Find(bson.M{"source":maps["k_source"],"brandName":maps["k_c_brand"]}).Distinct("name", &series); err != nil {
 		if err.Error() != GetErrNotFound().Error() {
             return series, err
         }

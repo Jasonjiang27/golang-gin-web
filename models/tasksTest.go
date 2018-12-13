@@ -23,7 +23,7 @@ type Task struct {
 	StartTime      string `json:"start_time"`       //开始时间
 	EndTime        string `json:"end_time"`         //结束时间
 	SubTaskNumbers int    `json:"sub_task_numbers"` //子任务数
-	TaskProcess		float64 `json:"task_process"`	//任务进度
+	//TaskProcess		float64 `json:"task_process"`	//任务进度
 }
 
 type Results struct{
@@ -46,6 +46,7 @@ var results Results
 func GetTasks(pageNum int, pageSize int, maps interface{}) (results []Results) {
 
 	db.Model(&Task{}).Where(maps).Select("task_id,user_id,task_project_name,start_time,end_time,file_name,task_status").Offset(pageNum).Limit(pageSize).Scan(&results)
+	db.Debug()
 	return
 }
 
@@ -123,6 +124,7 @@ func TaskCommonSubmit(data map[string]interface{}) error {
 
 func DeleteTask(task_id string) bool {
 	db.Where("task_id = ?", task_id).Delete(Task{})
+	
 
 	return true
 }

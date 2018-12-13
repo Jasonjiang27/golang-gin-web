@@ -2,7 +2,7 @@ package v1
 
 import (
 	"fmt"
-	//"time"
+	"time"
 	//"math"
 	"log"
 	"net/http"
@@ -46,15 +46,15 @@ func GetDataSource(c *gin.Context) {
 
 
 type CarInfo struct{
-  	Name	string
-  	Series	[]string
+  	Name	string		`json:"name"`
+  	Series	[]string	`json:"series"`
 }
 var Cars []CarInfo
 //获取品牌
 func GetBrands(c *gin.Context) {
 	map1 := make(map[string]interface{})
 	map2 := make(map[string]interface{})
-	k_source := c.Query("k_source")
+	k_source := c.Query("source")
 	map1["k_source"] = k_source
 	map2["k_source"] = k_source
 	log.Println(k_source)
@@ -65,34 +65,28 @@ func GetBrands(c *gin.Context) {
 	}
 	
 	for _,name := range names {
-		log.Println(name)
+		//log.Println(name)
 		map2["k_c_brand"] = name
 		var series []string
 		series,err := models.GetSeries(map2)
 		if err != nil {
 			panic(err)
 		}
-
 		var carinfo CarInfo
 		carinfo.Name = name
 		carinfo.Series = series
 		Cars = append(Cars, carinfo)
+
 	}
 	msg := make(map[string]interface{})
 	code := 0
 
-	var data_struct map[string][]CarInfo
-	
+	//var data_struct map[string][]CarInfo
+	data_struct := make(map[string][]CarInfo)
 	data_struct["brands"] = Cars
-	data := make(map[string][]map[string]interface{})
-	ss := len(data_struct["brand"])
-	for i := 0; i< ss; i++ {
-		data["brands"][i]["name"] = data_struct["brands"][i].Name
-		data["brands"][i]["series"] = data_struct["brands"][i].Series
-	}
 
 	msg["status"] = "success"
-	msg["data"] = data
+	msg["data"] = data_struct
 	c.JSON(http.StatusOK, gin.H{
 		"errorcode": code,
 		"msg":  msg,
@@ -156,6 +150,7 @@ func TaskSubmit(c *gin.Context) {
 	user_id := com.StrTo(c.Query("user_id")).MustInt()
 	//limit := com.StrTo(c.Query("limit")).MustInt()
 	task_status := c.Query("task_status")
+
 	code := e.INVALID_PARAMS
 
 	if !valid.HasErrors() {
@@ -195,19 +190,36 @@ func TaskSubmit(c *gin.Context) {
 
 }
 
+type PostParam struct {
+	Datasource 		string		`json:"data_source"`
+	Brand			string		`json:"brand"`
+	Series			string		`json:"series"`
+	Limit			int			
+	TaskProjectName string		`json:"task_project_name"`
+	LineNumbers     int 		
+	TimeFrom        string		`json:"time_from"`
+	TimeTo 			string		`json:"time_to"`
+}
+
 //提交mongo任务
 func TaskCommonSubmit(c *gin.Context) {
+	var postParam	PostParam
+	err := c.BindJSON(&postParam)
+	if err != nil{
+		log.Println(err)
+	}
 
 	task_type := "common"
-	data_source := c.Query("data_source")
-	brand := c.Query("brand")
-	series := c.Query("series")
-	limit := com.StrTo(c.Query("limit")).MustInt()
-	task_project_name := c.Query("task_project_name")
+	data_source := postParam.Datasource
+	brand := postParam.Brand
+	series := postParam.Series
+	limit := postParam.Limit
 
-	line_numbers := com.StrTo(c.Query("line_numbers")).MustInt()
-	time_from := c.Query("time_from")
-	time_to := c.Query("time_to")
+	task_project_name := "CAC"//默认postParam.TaskProjectName
+	line_numbers := postParam.LineNumbers
+
+	time_from := postParam.TimeFrom
+	time_to := postParam.TimeTo
 
 	valid := validation.Validation{}
 	valid.Required(task_type, "task_type").Message("任务类型不能为空")
@@ -228,7 +240,7 @@ func TaskCommonSubmit(c *gin.Context) {
 
 	task_status := c.Query("task_status")
 
-	code := e.INVALID_PARAMS
+	
 	if !valid.HasErrors() {
 		data_task := make(map[string]interface{})
 		data_task["user_id"] = user_id
@@ -242,7 +254,8 @@ func TaskCommonSubmit(c *gin.Context) {
 		data_task["task_status"] = task_status
 		data_task["start_time"] = start_time
 		data_task["end_time"] = end_time
-		data_task["task_id"] = util.EncodeMD5(data_source + brand + series + task_project_name)
+		time_now := time.Unix(time.Now().Unix(), 0)
+		data_task["task_id"] = util.EncodeMD5( brand + series + time_now.Format("2006-01-02 03:04:05 PM"))
 
 		//数据插入子任务表
 		data_mongo := make(map[string]interface{})
@@ -275,30 +288,30 @@ func TaskCommonSubmit(c *gin.Context) {
 			}
 		
 			//code2 = e.SUCCESS_sub_task
-			code = e.SUCCESS
+			
 		}
 		
-		code = 0
+
 	} else {
 		for _, err := range valid.Errors {
 			log.Println(err.Key, err.Message)
 		}
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"errorcode": code,
+		"errorcode": 0,
 		"msg":  "提交成功",
 		//"data": make(map[string]interface{}),
 	})
 }
 
 type TasksList struct{
-	Total		int
-	Limit		int
-	Offset		int
-	TaskType	string
-	UserId		int
-	Status		string
-	Tasks		[]models.Results
+	Total		int		`json:"total"`
+	Limit		int		`json:"limit"`
+	Offset		int		`json:"offset"`
+	TaskType	string	`json:"task_type"`
+	UserId		int		`json:"user_id"`
+	Status		string	`json:"status"`
+	Tasks		[]models.Results		`json:"tasks"`
 }
 
 
@@ -361,7 +374,12 @@ func GetTasks(c *gin.Context) {
 		sub_tasks_total := models.SubTaskCount(data1)          //子任务总数
 		sub_tasks_done_total := models.SubTaskDoneCount(data2) //子任务完成数
 		log.Printf("总任务数：%d,子任务完成数：%d", sub_tasks_total, sub_tasks_done_total)
-		task_process := float64(sub_tasks_done_total) / float64(sub_tasks_total) //进度
+		var task_process float64
+		if sub_tasks_total != 0 {
+			task_process = float64(sub_tasks_done_total) / float64(sub_tasks_total) //进度
+		}else {
+			task_process = 0
+		}
 		task_process, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", task_process), 64)		//显示两位小数
 		//fmt.Println(reflect.TypeOf(task_process), reflect.ValueOf(task_process).Kind())
 		msg.Tasks[i].TaskProcess = task_process
@@ -374,7 +392,7 @@ func GetTasks(c *gin.Context) {
 	data["user_id"] = user_id
 	data["status"] = msg.Status
 	data["tasks"] = msg.Tasks
-	//log.Println(data["status"],data["tasks"])
+	log.Println(data["status"],data["tasks"])
 	code := 0
 	c.JSON(http.StatusOK, gin.H{
 		"errorcode":     code,
